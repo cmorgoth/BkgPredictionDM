@@ -28,7 +28,7 @@ int RatioPlots(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "
     std::cout << "Unknown Type, please use: MR or RSQ" << std::endl;
     return -1;
   }
-  std::cout << "=====================Dividing Histograms=====================" << std::endl;
+  //std::cout << "=====================Dividing Histograms=====================" << std::endl;
   RATIO->Divide(h1, h2, 1, 1, "");
   RATIO->GetYaxis()->SetRangeUser(.0, 2.05);
 
@@ -182,7 +182,7 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
     return -1;
   }
   
-  std::cout << "=====================Dividing Histograms=====================" << std::endl;
+  //std::cout << "=====================Dividing Histograms=====================" << std::endl;
   RATIO->Divide(h2, h1, 1, 1, "");
   RATIO->GetYaxis()->SetRangeUser(.0, 3.05);
   h2->SetMarkerSize(.7);
