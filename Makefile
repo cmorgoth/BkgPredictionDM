@@ -23,7 +23,7 @@ CPPFLAGS += -g
 
 TARGET = BkgPred
 #SRC = BkgPred.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
-SRC = BkgPredBtagClosures.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc  
+SRC = BkgPred_TT_MC_ONLY.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc  
 
 OBJ = $(SRC:.cc=.o)
 

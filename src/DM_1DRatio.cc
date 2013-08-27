@@ -215,7 +215,7 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   t->SetTextSize(0.03);
   t->DrawLatex(0.35,0.87,"CMS Preliminary");
   t->DrawLatex(0.35,0.83,"#sqrt{s} = 8 TeV");
-  t->DrawLatex(0.35,0.77,"#int L dt = 5 fb^{-1}");
+  t->DrawLatex(0.35,0.77,"#int L dt = 19.6 fb^{-1}");
   
   TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.25);
   pad2->SetTopMargin(0);
@@ -356,7 +356,7 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
   t->SetTextSize(0.03);
   t->DrawLatex(0.25,0.87,"CMS Preliminary");
   t->DrawLatex(0.25,0.83,"#sqrt{s} = 8 TeV");
-  t->DrawLatex(0.25,0.77,"#int L dt = 5 fb^{-1}");
+  t->DrawLatex(0.25,0.77,"#int L dt = 19.6 fb^{-1}");
   
   TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.25);
   pad2->SetTopMargin(0.008);
