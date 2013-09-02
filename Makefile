@@ -3,14 +3,8 @@ LD = $(shell root-config --ld)
 
 INC=$(shell pwd)
 
-OS_NAME:=$(shell uname -s | tr A-Z a-z)
-ifeq ($(OS_NAME),darwin)
-STDINCDIR := -I/opt/local/include
-STDLIBDIR := -L/opt/local/lib
-else
 STDINCDIR :=-I$(INC)/include
 STDLIBDIR := 
-endif
 
 CPPFLAGS := $(shell root-config --cflags) $(STDINCDIR)
 LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR)
@@ -23,7 +17,7 @@ CPPFLAGS += -g
 
 TARGET = BkgPred
 #SRC = BkgPred.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
-SRC = BkgPred_TT_MC_ONLY.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc  
+SRC = BkgPred_FullData.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc  
 
 OBJ = $(SRC:.cc=.o)
 

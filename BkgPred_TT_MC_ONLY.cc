@@ -255,6 +255,138 @@ int main(){
   RatioPlotsBand( data_0b_1mu_MR, mu1_BOX_Pred_MR, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_MR_1mu_0b_pred_clo", "MR");
   RatioPlotsBand( data_0b_1mu_R2, mu1_BOX_Pred_R2, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_R2_1mu_0b_Pred_clo", "RSQ");
   
+
+  //////////////////////////////////////////////////////
+  //////////////////Output to LimitSetting/////////////
+  ////////////////////////////////////////////////////
+
+  TFile *bkg_file_1DRsq = new TFile("Bkg_Pred_from_Data_1DRsq_ttMC.root","RECREATE");
+  TFile *bkg_file_2D = new TFile("Bkg_Pred_from_Data_2D_ttMC.root","RECREATE");
+
+  bkg_file_2D->cd();
+  bkg->Write("BkgPred_2d");
+  bkg_file_1DRsq->cd();
+  pred_R2_bkg_0b_0mu->Write("BkgPred_R2"); //   
+
+  double rbins[5] = {0.5, 0.65, 0.8, 1.0, 2.50};
+  double mrbins[5] = {200., 400., 600., 800., 3500.};
+  
+  bkg_file_2D->cd();
+  //data_0b_0mu->Write();
+  bkg_file_1DRsq->cd();
+  //data_0b_0mu_R2->Write();
+  //data_0b_0mu->SetName("data_obs");
+  //data_0b_0mu_R2->SetName("data_obs");
+
+
+  bkg_file_2D->cd();
+  data_0b_0mu->Write("data_2d");
+  bkg_file_1DRsq->cd();
+  data_0b_0mu_R2->Write("data_R2");
+
+
+  TH1F *bkg_rsq_alphaUp = new TH1F("bkg_rsq_alphaUp","bkg_rsq_alphaUp",4,rbins);
+  TH1F *bkg_rsq_alphaDown = new TH1F("bkg_rsq_alphaDown","bkg_rsq_alphaDown",4,rbins);
+
+  for (int z=0; z<4; z++)
+  {
+   double binValue = pred_R2_bkg_0b_0mu->GetBinContent(z+1);
+   double error = pred_R2_bkg_0b_0mu->GetBinError(z+1);
+   bkg_rsq_alphaUp->SetBinContent(z+1,binValue+error);
+   bkg_rsq_alphaDown->SetBinContent(z+1,binValue-error);
+  }
+  //bkg_file_1DRsq->Write();
+  bkg_rsq_alphaUp->Write("BkgPred_R2_alphaUp");
+  bkg_rsq_alphaDown->Write("BkgPred_R2_alphaDown");
+
+
+  TH2F *bkg_alphaUp = new TH2F("bkg_alphaUp","bkg_alphaUp",4,mrbins,4,rbins);
+  TH2F *bkg_alphaDown = new TH2F("bkg_alphaDown","bkg_alphaUp",4,mrbins,4,rbins);
+
+
+  for (int x=1; x<5; x++) //mr                                                 
+      {
+   for (int y=1; y<5; y++) // rsq                                           
+  	  {
+       double value_in =bkg->GetBinContent(x,y);
+       double error_low = bkg->GetBinError(x,y);
+       double error_high = bkg->GetBinError(x,y);
+       ////double error_low = 0;                                              
+       //double error_high = 0;                                             
+       bkg_alphaUp->SetBinContent(x,y,value_in+error_high);
+       bkg_alphaDown->SetBinContent(x,y,value_in-error_low);
+   }
+  }
+  bkg_file_2D->cd();
+  bkg_alphaUp->Write("BkgPred_2d_alphaUp");
+  bkg_alphaDown->Write("BkgPred_2d_alphaDown");
+
+
+
+  TH1F *bkg_1D = new TH1F("bkg_1D","bkg_1D",16,0,16);
+  TH1F *bkg_1D_alphaUp = new TH1F("bkg_1D_alphaUp","bkg_1D_alphaUp",16,0,16);
+  TH1F *bkg_1D_alphaDown = new TH1F("bkg_1D_alphaDown","bkg_1D_alphaDown",16,0,16);
+  TH1F *data_1D_unwrapt = new TH1F("data_unwrapt","data_Unwrapt_16bins",16,0,16);
+
+  int counter = 0;
+  for ( int i=1; i<5; i++)
+  {
+  for (int j=1; j<5; j++)
+  	{
+     counter++;
+      double results = bkg->GetBinContent(i,j);
+      double results2 = bkg_alphaUp->GetBinContent(i,j);
+      double results3 = bkg_alphaDown->GetBinContent(i,j);
+      double results_data = data_0b_0mu->GetBinContent(i,j);
+      //unwrapping 2D into 1D
+      data_1D_unwrapt->SetBinContent(counter,results_data);
+      bkg_1D->SetBinContent(counter,results);
+      bkg_1D_alphaUp->SetBinContent(counter,results2);
+      bkg_1D_alphaDown->SetBinContent(counter,results3);
+    }
+  }
+  //bkg_file_1DRsq->Write("BkgPred_Unwrapt");
+  data_1D_unwrapt->Write("data_Unwrapt");
+  bkg_1D->Write("BkgPred_Unwrapt");
+  bkg_1D_alphaUp->Write("BkgPred_Unwrapt_alphaUp");
+  bkg_1D_alphaDown->Write("BkgPred_Unwrapt_alphaDown");
+
+  TTree *info2D = new TTree("info2D","ROOT Tree");
+  TTree *info1D = new TTree("info1D","ROOT Tree");
+
+
+  double num_bkg_1D_Rsq;
+  double num_bkg_1D;
+  double num_data_1D_Rsq;
+
+  double num_data_1D;
+  info1D->Branch("num_bkg_1D_Rsq",&num_bkg_1D_Rsq,"num_bkg_1D_Rsq/D");
+  info2D->Branch("num_bkg_1D",&num_bkg_1D,"num_bkg_1D/D");
+  info1D->Branch("num_data_1D_Rsq",&num_data_1D_Rsq,"num_data_1D_Rsq/D");
+  info2D->Branch("num_data_1D",&num_data_1D,"num_data_1D/D");
+  num_bkg_1D_Rsq = pred_R2_bkg_0b_0mu->Integral();
+  num_bkg_1D = bkg->Integral();
+  num_data_1D_Rsq = data_0b_0mu_R2->Integral();
+  num_data_1D = data_0b_0mu->Integral();
+  info1D->Fill();
+  bkg_file_1DRsq->cd();
+
+  info1D->Branch("num_bkg_1D_Rsq",&num_bkg_1D_Rsq,"num_bkg_1D_Rsq/D");
+  info2D->Branch("num_bkg_1D",&num_bkg_1D,"num_bkg_1D/D");
+  info1D->Branch("num_data_1D_Rsq",&num_data_1D_Rsq,"num_data_1D_Rsq/D");
+  info2D->Branch("num_data_1D",&num_data_1D,"num_data_1D/D");
+  num_bkg_1D_Rsq = pred_R2_bkg_0b_0mu->Integral();
+  num_bkg_1D = bkg->Integral();
+  num_data_1D_Rsq = data_0b_0mu_R2->Integral();
+  num_data_1D = data_0b_0mu->Integral();
+  info1D->Fill();
+  bkg_file_1DRsq->cd();
+  info1D->Write();
+  bkg_file_2D->cd();
+  info2D->Write();
+  
+
+
   f->Close();
   f1->Close();
   F->Close();
