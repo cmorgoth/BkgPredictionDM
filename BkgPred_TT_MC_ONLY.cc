@@ -25,7 +25,7 @@ int main(){
   //////////////1Tight Btag///////////////
   ////////////////////////////////////////
   //TFile* f = new TFile("1Tight.root");
-  TFile* f = new TFile("BtagFullPromtReco.root");
+  TFile* f = new TFile("One_TightBtag_FullPromtReco.root");
   TH2F* data_1b_2mu = (TH2F*)f->Get("data_2d_2mu");
   TH2F* data_1b_1mu = (TH2F*)f->Get("data_2d_1mu");
   TH2F* data_1b_0mu = (TH2F*)f->Get("data_2d_0mu");
@@ -54,7 +54,7 @@ int main(){
   //////////////1Tight 1Med///////////////////
   ///////////////////////////////////////////
     
-  TFile* f1 = new TFile("MedandTightBtag_FullPromtReco.root");
+  TFile* f1 = new TFile("One_Tight_OneMed_Btag_FullPromtReco.root");
   TH2F* data_2b_1mu = (TH2F*)f1->Get("data_2d_1mu");
   TH1F* data_2b_1mu_MR = (TH1F*)f1->Get("data_MR_1mu");
   TH1F* data_2b_1mu_R2 = (TH1F*)f1->Get("data_R2_1mu");
@@ -65,8 +65,13 @@ int main(){
   ///////////////////////////////////////////
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
+<<<<<<< HEAD
   //TFile* F = new TFile("VetoBtagFullPromtReco.root");
   TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
+=======
+  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
+  //TFile* F = new TFile("VetoBtag_FullPromtReco.root");
+>>>>>>> f7c9161c66072484b5d1f304be54ddbbd1ef058a
   TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
   TH2F* tt_0b_0mu = (TH2F*)F->Get("TT_2d_0mu");
@@ -463,11 +468,11 @@ int main(){
   bkg_file_2D->cd();
   //info2D->Write();
   
-
-
-  f->Close();
-  f1->Close();
-  F->Close();
+  std::cout << "++++++++++++++++++HERE+++++++++++++++++++" << std::endl;
+  bkg_file_2D->Close();
+  //f->Close();
+  //f1->Close();
+  //F->Close();
 
   return 0;
 
