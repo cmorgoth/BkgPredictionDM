@@ -24,7 +24,7 @@ int main(){
   /////////////////////////////////////////
   //////////////1Tight Btag///////////////
   ////////////////////////////////////////
-  TFile* f = new TFile("One_TightBtag_FullPromtReco.root");
+  TFile* f = new TFile("One_Tight_Btag_FullPromtReco_NNLoXsec.root");
   TH2F* data_1b_2mu = (TH2F*)f->Get("data_2d_2mu");
   TH2F* data_1b_1mu = (TH2F*)f->Get("data_2d_1mu");
   TH2F* data_1b_0mu = (TH2F*)f->Get("data_2d_0mu");
@@ -52,7 +52,7 @@ int main(){
   //////////////1Tight 1Med///////////////////
   ///////////////////////////////////////////
     
-  TFile* f1 = new TFile("One_Tight_OneMed_Btag_FullPromtReco.root");
+  TFile* f1 = new TFile("Two_Tight_Btag_FullPromtReco_TT_NNLoXsec.root");
   TH2F* data_2b_1mu = (TH2F*)f1->Get("data_2d_1mu");
   TH1F* data_2b_1mu_MR = (TH1F*)f1->Get("data_MR_1mu");
   TH1F* data_2b_1mu_R2 = (TH1F*)f1->Get("data_R2_1mu");
@@ -63,7 +63,7 @@ int main(){
   ///////////////////////////////////////////
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
-  TFile* F = new TFile("VetoBtag_FullPromtReco.root");
+  TFile* F = new TFile("VetoBtag_FullPromtReco_NNLoXsec.root");
   TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
   TH2F* tt_0b_0mu = (TH2F*)F->Get("TT_2d_0mu");
@@ -115,7 +115,8 @@ int main(){
   TH2F* pred_ttbar_2mu0b = new TH2F(*data_1b_2mu);//Data 2mu1b
   //////////////Actual Prediction ttbar 2mu-0Btag/////////////////////
   pred_ttbar_2mu0b->Multiply(ttbar_2mu0b_2mu1b_Ratio);
-
+  
+  std::cout << "================= -2) ttbar 2mu-0b Prediction : " << pred_ttbar_2mu0b->Integral() << "  ===================" << std::endl;
   
   /////////////////////////////////////////////////////
   ////////////////////ttbar-1Mu-0Btag Pred////////////
@@ -126,6 +127,8 @@ int main(){
   TH2F* pred_ttbar_1mu0b = new TH2F(*data_2b_1mu);//Data 1mu2b
   //////////////Actual Prediction ttbar 1mu-0Btag/////////////////////
   pred_ttbar_1mu0b->Multiply(ttbar_1mu0b_1mu2b_Ratio);
+  
+  std::cout << "================= -1) ttbar 1mu-0b Prediction : " << pred_ttbar_1mu0b->Integral() << "  ===================" << std::endl;
 
   /////////////////////////////////////////////////////
   ////////////////////ttbar-1Mu-0Btag Pred////////////
@@ -136,6 +139,7 @@ int main(){
   TH2F* pred_ttbar_0mu0b = new TH2F(*data_2b_1mu);//Data 1mu2b
   //////////////Actual Prediction ttbar 0mu-0Btag/////////////////////
   pred_ttbar_0mu0b->Multiply(ttbar_0mu0b_1mu2b_Ratio);
+  std::cout << "================= 0) ttbar 0mu-0b Prediction : " << pred_ttbar_0mu0b->Integral() << "  ===================" << std::endl;
   
   
   ///////////////////////////////////////////////////
@@ -170,8 +174,8 @@ int main(){
   //////////////////W 1mu/////////////////
   ////////////////////////////////////////
   TH2F* p_0b_1mu_W = new TH2F( *data_0b_1mu );//W prediction for 0b 1mu box
-  p_0b_1mu_W->Add(pred_ttbar_1mu0b, -1.0);//Subtraction tt 1mu prediction
-  //p_0b_1mu_W->Add(tt_0b_1mu, -1.0);//Subtraction tt 1mu from MC
+  //p_0b_1mu_W->Add(pred_ttbar_1mu0b, -1.0);//Subtraction tt 1mu prediction
+  p_0b_1mu_W->Add(tt_0b_1mu, -1.0);//Subtraction tt 1mu from MC
   p_0b_1mu_W->Add(p_0b_1mu_dy, -1.0);//Subtraction Drell-Yan 1mu prediction
   Integral = p_0b_1mu_W->IntegralAndError(1, 6, 1, 6, error, "");
   std::cout << "---------3)-------" << std::endl;
@@ -204,11 +208,12 @@ int main(){
   /////////Z(nunu) 0 mu box///////////////
   ///////////////////////////////////////
   
-  TH2F* p_0b_0mu_Z = new TH2F( *data_0b_2mu );//Z(nunu) prediction for 0b 0mu box
-  p_0b_0mu_Z->Add(pred_ttbar_2mu0b, -1.0);//Subtracting tt 0b 2mu prediction
-  //p_0b_0mu_Z->Add(tt_0b_2mu, -1.0);//Subtracting tt 0b 2mu from MC
+  //TH2F* p_0b_0mu_Z = new TH2F( *data_0b_2mu );//Z(nunu) prediction for 0b 0mu box
+  TH2F* p_0b_0mu_Z = new TH2F( *p_0b_1mu_W );//Z(nunu) prediction for 0b 0mu box
+  //p_0b_0mu_Z->Add(pred_ttbar_2mu0b, -1.0);//Subtracting tt 0b 2mu prediction    
   TH2F* r_0b_0mu_Z = new TH2F( *Z_0b_0mu );
-  r_0b_0mu_Z->Divide(dy_0b_2mu);
+  //r_0b_0mu_Z->Divide(dy_0b_2mu); 
+  r_0b_0mu_Z->Divide(W_0b_1mu);
   p_0b_0mu_Z->Multiply(r_0b_0mu_Z);
   Integral = p_0b_0mu_Z->IntegralAndError(1, 6, 1, 6, error, "");
   std::cout << "---------5)-------" << std::endl;
