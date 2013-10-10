@@ -6,6 +6,10 @@
 #include "DM_1DRatio.hh"
 #include "DM_2DRatio.hh"
 #include "DM_Base.hh"
+#include "TCanvas.h"
+#include "TStyle.h"
+#include "TColor.h"
+#include "TPad.h"
 
 
 //const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.50};
@@ -17,10 +21,24 @@
 const float BaseDM::RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};                                                     
 const float BaseDM::MR_BinArr[] = {200., 400., 600., 800., 3500.};   
 
+void set_plot_style(){
+  const int NRGBs = 5;
+  const int NCont = 255;
+  
+  double stops[NRGBs] = { 0.00, 0.25, 0.50, 0.75, 1.00 };
+  double red[NRGBs]   = { 0.50, 0.70, 1.00, 1.00, 1.00 };
+  double green[NRGBs] = { 0.50, 0.70, 1.00, 0.70, 0.50 };
+  double blue[NRGBs]  = { 1.00, 1.00, 1.00, 0.70, 0.50 };
+  TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
+  gStyle->SetNumberContours(NCont);
+}
+
 int main(){
   gROOT->Reset();
 
-
+  set_plot_style();
+  TH2F* flag = new TH2F("flag", "flag", 4, BaseDM::MR_BinArr, 4, BaseDM::RSQ_BinArr);
+  TCanvas* cc = new TCanvas("cc", "cc", 640, 640);
   /////////////////////////////////////////
   //////////////1Tight Btag///////////////
   ////////////////////////////////////////
@@ -174,10 +192,9 @@ int main(){
   /////////Z(nunu) 0 mu box///////////////
   ///////////////////////////////////////
   
-  TH2F* p_0b_0mu_Z = new TH2F( *data_0b_2mu );//Z(nunu) prediction for 0b 0mu 
-  p_0b_0mu_Z->Add(tt_0b_2mu, -1.0);//Subtracting tt 0b 2mu from MC
+  TH2F* p_0b_0mu_Z = new TH2F( *p_0b_1mu_W );//Z(nunu) prediction for 0b 0mu 
   TH2F* r_0b_0mu_Z = new TH2F( *Z_0b_0mu );
-  r_0b_0mu_Z->Divide(dy_0b_2mu);
+  r_0b_0mu_Z->Divide(W_0b_1mu);
   p_0b_0mu_Z->Multiply(r_0b_0mu_Z);
   Integral = p_0b_0mu_Z->IntegralAndError(1, 6, 1, 6, error, "");
   std::cout << "---------5)-------" << std::endl;
@@ -220,7 +237,26 @@ int main(){
   RatioPlotsBand( data_0b_0mu_MR, pred_MR_bkg_0b_0mu, "Data  0-#mu BOX", "Bkg Pred 0-#mu BOX", "PredPlots/Total_Bkg_MR_0mu_0b_pred", "MR");
   RatioPlotsBand( data_0b_0mu_R2, pred_R2_bkg_0b_0mu, "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Total_Bkg_R2_0mu_0b_Pred", "RSQ");
   
-  
+  //////////////////////////////////////////////////////////
+  //////////////Flag Plot//////////////////////////////////
+  ////////////////////////////////////////////////////////
+
+  for(int b1 = 1; b1 <= 4; b1++){
+    for(int b2 = 1; b2 <= 4; b2++){
+      double r_data_exp = bkg->GetBinContent(b1,b2)/data_0b_0mu->GetBinContent(b1,b2);
+      std::cout << r_data_exp << std::endl;
+      flag->SetBinContent(b1,b2,r_data_exp);
+    }
+  }
+
+  flag->SetStats(0);
+  gPad->SetLogy();
+  gPad->SetLogx();
+  flag->SetMaximum(2);
+  flag->SetMinimum(0.0);
+  flag->Draw("colztext");
+  cc->SaveAs("flag.pdf");
+  cc->SaveAs("flag.png");
   ///////////////////////////////////////////////////////////
   ///////////////////Closure Test///////////////////////////
   /////////////////////////////////////////////////////////
@@ -265,7 +301,8 @@ int main(){
   TFile *bkg_file_2D = new TFile("Bkg_Pred_from_Data_2D_ttMC.root","RECREATE");
 
   bkg_file_2D->cd();
-  //bkg->Write("BkgPred_2d");
+  bkg->Write("BkgPred_2d");
+  data_0b_0mu->Write("Data_2d");
   bkg_file_1DRsq->cd();
   //pred_R2_bkg_0b_0mu->Write("BkgPred_R2"); //   
 
