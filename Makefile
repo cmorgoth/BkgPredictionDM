@@ -16,14 +16,10 @@ CPPFLAGS += -g
 #SRC = bkg_pre_2mu.cc src/DM_StackPlots.cc src/DM_RatioPlots.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc src/DM_DY_HTBins.cc src/DM_TT_LSLH.cc src/DM_Data.cc src/DM_ZJetsNuNu.cc src/DM_WJetsHTBins.cc src/DM_2D_MR_RSQ_Dist.cc src/DM_T2CC.cc src/DM_METPlots.cc
 
 TARGET = BkgPred
-<<<<<<< HEAD
 #SRC = BkgPred.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc  
 SRC = BkgPred_TT_MC_ONLY_Hybrid.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
-=======
-#SRC = BkgPred_FullData.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc  
-SRC =  BkgPred_FullData_Hybrid.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
->>>>>>> f7c9161c66072484b5d1f304be54ddbbd1ef058a
+
 OBJ = $(SRC:.cc=.o)
 
 all : $(TARGET)
