@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "TROOT.h"
 #include "TH1F.h"
 #include "TFile.h"
@@ -24,7 +25,9 @@ int main(){
   /////////////////////////////////////////
   //////////////1Tight Btag///////////////
   ////////////////////////////////////////
-  TFile* f = new TFile("One_Tight_Btag_FullPromtReco_NNLoXsec.root");
+  TFile* f = new TFile("One_Tight_Btag_FullPromtReco_LoXsec.root");
+  //TFile* f = new TFile("One_Tight_Btag_FullPromtReco_NNLoXsec.root");
+  
   TH2F* data_1b_2mu = (TH2F*)f->Get("data_2d_2mu");
   TH2F* data_1b_1mu = (TH2F*)f->Get("data_2d_1mu");
   TH2F* data_1b_0mu = (TH2F*)f->Get("data_2d_0mu");
@@ -52,7 +55,9 @@ int main(){
   //////////////1Tight 1Med///////////////////
   ///////////////////////////////////////////
     
-  TFile* f1 = new TFile("Two_Tight_Btag_FullPromtReco_TT_NNLoXsec.root");
+  TFile* f1 = new TFile("Two_Tight_Btag_FullPromtReco_LoXsec.root");
+  //TFile* f1 = new TFile("Two_Tight_Btag_FullPromtReco_TT_NNLoXsec.root");
+  
   TH2F* data_2b_1mu = (TH2F*)f1->Get("data_2d_1mu");
   TH1F* data_2b_1mu_MR = (TH1F*)f1->Get("data_MR_1mu");
   TH1F* data_2b_1mu_R2 = (TH1F*)f1->Get("data_R2_1mu");
@@ -63,7 +68,9 @@ int main(){
   ///////////////////////////////////////////
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
-  TFile* F = new TFile("VetoBtag_FullPromtReco_NNLoXsec.root");
+  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
+  //TFile* F = new TFile("VetoBtag_FullPromtReco_NNLoXsec.root");
+  
   TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
   TH2F* tt_0b_0mu = (TH2F*)F->Get("TT_2d_0mu");
@@ -142,6 +149,14 @@ int main(){
   std::cout << "================= 0) ttbar 0mu-0b Prediction : " << pred_ttbar_0mu0b->Integral() << "  ===================" << std::endl;
   
   
+
+  /////////////////////////////////////////////////////////
+  /////////////////DY 2mu Prediction//////////////////////
+  ////////////////////////////////////////////////////////
+  
+  TH2F* p_0b_2mu_dy = new TH2F(*data_0b_2mu);
+  p_0b_2mu_dy->Add(pred_ttbar_2mu0b, -1.0);
+  
   ///////////////////////////////////////////////////
   /////////////////////Signal Prediction////////////
   /////////////////////////////////////////////////
@@ -158,7 +173,6 @@ int main(){
   RatioPlots( dy_0b_1mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_R2_1mu_to_2mu", "RSQ");
   TH2F* p_0b_1mu_dy = new TH2F( *data_0b_2mu );//Drell-Yan prediction for 0b 1mu box
   p_0b_1mu_dy->Add(pred_ttbar_2mu0b, -1.0);//Subtracting tt 0b 2mu prediction
-  //p_0b_1mu_dy->Add(tt_0b_2mu, -1.0);//Subtracting tt 0b 2mu from MC
   TH2F* r_0b_1mu_dy = new TH2F( *dy_0b_1mu );
   r_0b_1mu_dy->Divide(dy_0b_2mu);
   p_0b_1mu_dy->Multiply(r_0b_1mu_dy);
@@ -174,8 +188,7 @@ int main(){
   //////////////////W 1mu/////////////////
   ////////////////////////////////////////
   TH2F* p_0b_1mu_W = new TH2F( *data_0b_1mu );//W prediction for 0b 1mu box
-  //p_0b_1mu_W->Add(pred_ttbar_1mu0b, -1.0);//Subtraction tt 1mu prediction
-  p_0b_1mu_W->Add(tt_0b_1mu, -1.0);//Subtraction tt 1mu from MC
+  p_0b_1mu_W->Add(pred_ttbar_1mu0b, -1.0);//Subtraction tt 1mu prediction
   p_0b_1mu_W->Add(p_0b_1mu_dy, -1.0);//Subtraction Drell-Yan 1mu prediction
   Integral = p_0b_1mu_W->IntegralAndError(1, 6, 1, 6, error, "");
   std::cout << "---------3)-------" << std::endl;
@@ -192,7 +205,6 @@ int main(){
   RatioPlots( dy_0b_0mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_R2_0mu_to_2mu", "RSQ");
   TH2F* p_0b_0mu_dy = new TH2F( *data_0b_2mu );//Drell-Yan prediction for 0b 0mu box
   p_0b_0mu_dy->Add(pred_ttbar_2mu0b, -1.0);//Subtracting tt 0b 2mu prediction
-  //p_0b_0mu_dy->Add(tt_0b_2mu, -1.0);//Subtracting tt 0b 2mu from MC
   TH2F* r_0b_0mu_dy = new TH2F( *dy_0b_0mu );
   r_0b_0mu_dy->Divide(dy_0b_2mu);
   p_0b_0mu_dy->Multiply(r_0b_0mu_dy);
@@ -209,10 +221,10 @@ int main(){
   ///////////////////////////////////////
   
   //TH2F* p_0b_0mu_Z = new TH2F( *data_0b_2mu );//Z(nunu) prediction for 0b 0mu box
-  TH2F* p_0b_0mu_Z = new TH2F( *p_0b_1mu_W );//Z(nunu) prediction for 0b 0mu box
-  //p_0b_0mu_Z->Add(pred_ttbar_2mu0b, -1.0);//Subtracting tt 0b 2mu prediction    
-  TH2F* r_0b_0mu_Z = new TH2F( *Z_0b_0mu );
+  //p_0b_0mu_Z->Add(pred_ttbar_2mu0b, -1.0);//Subtracting tt 0b 2mu prediction 
   //r_0b_0mu_Z->Divide(dy_0b_2mu); 
+  TH2F* p_0b_0mu_Z = new TH2F( *p_0b_1mu_W );//Z(nunu) prediction for 0b 0mu box
+  TH2F* r_0b_0mu_Z = new TH2F( *Z_0b_0mu );
   r_0b_0mu_Z->Divide(W_0b_1mu);
   p_0b_0mu_Z->Multiply(r_0b_0mu_Z);
   Integral = p_0b_0mu_Z->IntegralAndError(1, 6, 1, 6, error, "");
@@ -243,7 +255,6 @@ int main(){
   ////////////////////////////////////////////
   TH2F* bkg = new TH2F( *p_0b_0mu_W );//Adding W+jets prediction
   bkg->Add(pred_ttbar_0mu0b);//Adding tt+jets prediction
-  //bkg->Add(tt_0b_0mu);//Adding tt+jets from MC
   bkg->Add(p_0b_0mu_dy);//Adding Z/gamma*(ll)+jets prediction
   bkg->Add(p_0b_0mu_Z);//Adding Z(nunu)+jets prediction
   Integral = bkg->IntegralAndError(1, 6, 1, 6, error, "");
@@ -293,13 +304,67 @@ int main(){
   RatioPlotsBand( data_0b_1mu_R2, mu1_BOX_Pred_R2, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_R2_1mu_0b_Pred_clo", "RSQ");  
 
 
+  
+  double tt_mu[3], dy_mu[3], w_mu[3], z_mu[3];
+  double tt_mu_E[3], dy_mu_E[3], w_mu_E[3], z_mu_E[3];
+  
+  for(int i = 0; i < 3; i++){
+    tt_mu[i] = .0;
+    tt_mu_E[i] = .0;
+    dy_mu[i] = .0;
+    dy_mu_E[i] = .0;
+    w_mu[i] = .0;
+    w_mu_E[i] = .0;
+    z_mu[i] = .0;
+    z_mu_E[i] = .0;
+  }
+  
+  tt_mu[0] = pred_ttbar_0mu0b->IntegralAndError(1,4, tt_mu_E[0]);
+  tt_mu[1] = pred_ttbar_1mu0b->IntegralAndError(1,4, tt_mu_E[1]);
+  tt_mu[2] = pred_ttbar_2mu0b->IntegralAndError(1,4, tt_mu_E[2]);
 
- //////////////////////////////////////////////////////
+  dy_mu[0] = p_0b_0mu_dy->IntegralAndError(1,4, dy_mu_E[0]);
+  dy_mu[1] = p_0b_1mu_dy->IntegralAndError(1,4, dy_mu_E[1]);
+  dy_mu[2] = p_0b_2mu_dy->IntegralAndError(1,4, dy_mu_E[2]);
+  
+  w_mu[0] = p_0b_0mu_W->IntegralAndError(1,4, w_mu_E[0]);
+  w_mu[1] = p_0b_1mu_W->IntegralAndError(1,4, w_mu_E[1]);
+  //w_mu[2] = MR_RSQ_2BOX_W->IntegralAndError(1,4, w_mu_E[2]);
+  
+  z_mu[0] = p_0b_0mu_Z->IntegralAndError(1,4, z_mu_E[0]);
+  //z_mu[1] = MR_RSQ_1BOX_Z->IntegralAndError(1,4, z_mu_E[1]);
+  //z_mu[2] = MR_RSQ_2BOX_Z->IntegralAndError(1,4, z_mu_E[2]);
+  
+  double tot_0mu = tt_mu[0]+dy_mu[0]+w_mu[0]+z_mu[0];
+  double tot_1mu = tt_mu[1]+dy_mu[1]+w_mu[1]+z_mu[1];
+  double tot_2mu = tt_mu[2]+dy_mu[2]+w_mu[2]+z_mu[2];
+
+  double tot_0mu_E = sqrt(tt_mu_E[0]*tt_mu_E[0] + dy_mu_E[0]*dy_mu_E[0] + w_mu_E[0]*w_mu_E[0] + z_mu_E[0]*z_mu_E[0]);
+  double tot_1mu_E = sqrt(tt_mu_E[1]*tt_mu_E[1] + dy_mu_E[1]*dy_mu_E[1] + w_mu_E[1]*w_mu_E[1] + z_mu_E[1]*z_mu_E[1]);
+  double tot_2mu_E = sqrt(tt_mu_E[2]*tt_mu_E[2] + dy_mu_E[2]*dy_mu_E[2] + w_mu_E[2]*w_mu_E[2] + z_mu_E[2]*z_mu_E[2]);
+
+  std::ofstream ofs("Yields.tex", std::ofstream::out);
+  
+  ofs << "\\begin{table}[htdp]\n\\caption{default}\n\\begin{center}\n\\begin{tabular}{|c|c|c|c|}\n\\hline\n";
+  ofs << "\t&\t$0-\\mu BOX$\t&\t$1-\\mu BOX$\t&\t$2-\\mu BOX$\\\\\n\\hline";
+  ofs << "$t\\bar{t}$ + Jets\t&\t" << tt_mu[0] << "$\\pm$" << tt_mu_E[0] << "\t&\t" << tt_mu[1] << "$\\pm$" << tt_mu_E[1] << "\t&\t" << tt_mu[2] << "$\\pm$" << tt_mu_E[2] <<"\\\\\n";
+  ofs << "\\hline\n$Z(ll)$ + Jets\t&\t" << dy_mu[0] << "$\\pm$" << dy_mu_E[0] << "\t&\t" << dy_mu[1] << "$\\pm$" << dy_mu_E[1] << "\t&\t" << dy_mu[2] << "$\\pm$" << dy_mu_E[2] <<"\\\\\n";
+  ofs << "\\hline\n$Z(\\nu\\bar{\\nu})$ + Jets\t&\t" << z_mu[0] << "$\\pm$" << z_mu_E[0] << "\t&\t" << z_mu[1] << "$\\pm$" << z_mu_E[1] << "\t&\t" << z_mu[2] << "$\\pm$" << z_mu_E[2] << "\\\\\n";
+  ofs << "\\hline\n$W(l\\nu)$ + Jets\t&\t" <<  w_mu[0] << "$\\pm$" << w_mu_E[0] << "\t&\t" << w_mu[1] << "$\\pm$" << w_mu_E[1] << "\t&\t" << w_mu[2] << "$\\pm$" << w_mu_E[2] <<"\\\\\n";
+  ofs << "\\hline\n\\hline\nTotal MC\t&\t" << tot_0mu << "$\\pm$" << tot_0mu_E << "\t&\t" << tot_1mu << "$\\pm$" << tot_1mu_E << "\t&\t" << tot_2mu << "$\\pm$" << tot_2mu_E << "\\\\\n";
+  ofs << "\\hline\nData\t&\t" << data_0b_0mu->Integral() << "\t&\t" << data_0b_1mu->Integral() << "\t&\t" << data_0b_2mu->Integral() << "\\\\\n\\hline";
+  ofs << "\\end{tabular}\n\\end{center}\n\\label{default}\n\\end{table}\n";
+  
+  ofs.close();
+
+
+
+  //////////////////////////////////////////////////////
   //////////////////Output to LimitSetting/////////////
   ////////////////////////////////////////////////////
 
   TFile *bkg_file_1DRsq = new TFile("Bkg_Pred_from_Data_1DRsq_FullData.root","RECREATE");
-  TFile *bkg_file_2D = new TFile("Bkg_Pred_from_Data_2D_FullData.root","RECREATE");
+  TFile *bkg_file_2D = new TFile("Pred_Files/Bkg_Pred_from_Data_2D_FullData_LO.root","RECREATE");
 
   bkg_file_2D->cd();
   bkg->Write("BkgPred_2d");
