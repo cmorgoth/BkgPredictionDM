@@ -1,7 +1,7 @@
 {
   
   gROOT->Reset();
-  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO.root");
+  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_NNLO.root");
   TH2F* Pred2D = (TH2F*)f->Get("BkgPred_2d");
   TH2F* Data2D = (TH2F*)f->Get("Data_2d");
 
@@ -62,7 +62,7 @@
   TH1F* h[16]; 
   double p_val[16], n_sigma[16];
   int ctr = 0;
-  int n_toys = 1e8;
+  int n_toys = 1e7;
   for(int i = 1; i <= Pred2D->GetNbinsX(); i++){
     for(int j = 1; j <= Pred2D->GetNbinsY(); j++){	
       

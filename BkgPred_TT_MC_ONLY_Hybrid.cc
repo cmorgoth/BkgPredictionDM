@@ -13,14 +13,18 @@
 #include "TPad.h"
 
 
-//const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 2.50};
-//const float BaseDM::MR_BinArr[] = {200., 300., 400., 500., 600., 900., 3500.};
+//const float BaseDM::RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};
+//const float BaseDM::MR_BinArr[] = {200., 400., 600., 800., 3500.};   
+const int mrBins = 5;
+const int r2Bins = 5;
+//const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};
+//const float BaseDM::MR_BinArr[] = {200., 300., 400., 600., 800., 3500.};
 
-//const float BaseDM::RSQ_BinArr[] = {0.5, 0.7, 0.9, 1.1, 2.50};
-//const float BaseDM::MR_BinArr[] = {200., 466., 732., 1000., 3500.};
+//const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};
+//const float BaseDM::MR_BinArr[] = {200., 300., 400., 500., 600., 700., 800., 3500.};
 
-const float BaseDM::RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};                                                     
-const float BaseDM::MR_BinArr[] = {200., 400., 600., 800., 3500.};   
+const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};
+const float BaseDM::MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};
 
 void set_plot_style(){
   const int NRGBs = 5;
@@ -38,7 +42,7 @@ int main(){
   gROOT->Reset();
 
   set_plot_style();
-  TH2F* flag = new TH2F("flag", "flag", 4, BaseDM::MR_BinArr, 4, BaseDM::RSQ_BinArr);
+  TH2F* flag = new TH2F("flag", "flag", mrBins, BaseDM::MR_BinArr, r2Bins, BaseDM::RSQ_BinArr);
   TCanvas* cc = new TCanvas("cc", "cc", 640, 640);
   /////////////////////////////////////////
   //////////////1Tight Btag///////////////
@@ -88,8 +92,8 @@ int main(){
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
   //TFile* F = new TFile("VetoBtag_FullPromtReco.root");
-  //TFile* F = new TFile("VetoBtag_FullPromtReco_NNLoXsec.root");
-  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
+  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec_NewBinning5x5_v2.root");
+  //TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
 
   TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
@@ -254,8 +258,8 @@ int main(){
   //////////////Flag Plot//////////////////////////////////
   ////////////////////////////////////////////////////////
 
-  for(int b1 = 1; b1 <= 4; b1++){
-    for(int b2 = 1; b2 <= 4; b2++){
+  for(int b1 = 1; b1 <= mrBins; b1++){
+    for(int b2 = 1; b2 <= r2Bins; b2++){
       double r_data_exp = bkg->GetBinContent(b1,b2)/data_0b_0mu->GetBinContent(b1,b2);
       std::cout << r_data_exp << std::endl;
       flag->SetBinContent(b1,b2,r_data_exp);
@@ -320,19 +324,19 @@ int main(){
     z_mu_E[i] = .0;
   }
 
-  tt_mu[0] = tt_0b_0mu->IntegralAndError(1,4, tt_mu_E[0]);
-  tt_mu[1] = tt_0b_1mu->IntegralAndError(1,4, tt_mu_E[1]);
-  tt_mu[2] = tt_0b_2mu->IntegralAndError(1,4, tt_mu_E[2]);
+  tt_mu[0] = tt_0b_0mu->IntegralAndError(1,mrBins, tt_mu_E[0]);
+  tt_mu[1] = tt_0b_1mu->IntegralAndError(1,mrBins, tt_mu_E[1]);
+  tt_mu[2] = tt_0b_2mu->IntegralAndError(1,mrBins, tt_mu_E[2]);
 
-  dy_mu[0] = p_0b_0mu_dy->IntegralAndError(1,4, dy_mu_E[0]);
-  dy_mu[1] = p_0b_1mu_dy->IntegralAndError(1,4, dy_mu_E[1]);
-  dy_mu[2] = p_0b_2mu_dy->IntegralAndError(1,4, dy_mu_E[2]);
+  dy_mu[0] = p_0b_0mu_dy->IntegralAndError(1,mrBins, dy_mu_E[0]);
+  dy_mu[1] = p_0b_1mu_dy->IntegralAndError(1,mrBins, dy_mu_E[1]);
+  dy_mu[2] = p_0b_2mu_dy->IntegralAndError(1,mrBins, dy_mu_E[2]);
 
-  w_mu[0] = p_0b_0mu_W->IntegralAndError(1,4, w_mu_E[0]);
-  w_mu[1] = p_0b_1mu_W->IntegralAndError(1,4, w_mu_E[1]);
+  w_mu[0] = p_0b_0mu_W->IntegralAndError(1,mrBins, w_mu_E[0]);
+  w_mu[1] = p_0b_1mu_W->IntegralAndError(1,mrBins, w_mu_E[1]);
   //w_mu[2] = MR_RSQ_2BOX_W->IntegralAndError(1,4, w_mu_E[2]);
   
-  z_mu[0] = p_0b_0mu_Z->IntegralAndError(1,4, z_mu_E[0]);
+  z_mu[0] = p_0b_0mu_Z->IntegralAndError(1,mrBins, z_mu_E[0]);
   //z_mu[1] = MR_RSQ_1BOX_Z->IntegralAndError(1,4, z_mu_E[1]);
   //z_mu[2] = MR_RSQ_2BOX_Z->IntegralAndError(1,4, z_mu_E[2]);
   
@@ -363,99 +367,133 @@ int main(){
   //////////////////Output to LimitSetting/////////////
   ////////////////////////////////////////////////////
 
-  TFile *bkg_file_1DRsq = new TFile("Bkg_Pred_from_Data_1DRsq_ttMC.root","RECREATE");
+  TFile *bkg_file_1DRsq = new TFile("Bkg_Pred_1D_Rsq_ttMC.root","RECREATE");
+  bkg_file_1DRsq->cd();
+  pred_R2_bkg_0b_0mu->Write("bkg_rsq");
+  data_0b_0mu_R2->Write("data_rsq");
+  
+  TH1F *bkg_rsq_alphaUp = new TH1F("bkg_rsq_alphaUp","bkg_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *bkg_rsq_alphaDown = new TH1F("bkg_rsq_alphaDown","bkg_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+
+  //Individual RSQ Predictions
+  TH1F* p_w_1d_rsq = (TH1F*)p_0b_0mu_W->ProjectionX("w_rsq",0,-1,"eo");
+  TH1F* p_z_1d_rsq = (TH1F*)p_0b_0mu_Z->ProjectionX("z_rsq",0,-1,"eo");
+  TH1F* p_dy_1d_rsq = (TH1F*)p_0b_0mu_dy->ProjectionX("dy_rsq",0,-1,"eo");
+  TH1F* p_tt_1d_rsq = (TH1F*)tt_0b_0mu->ProjectionX("tt_rsq",0,-1,"eo");;
+  
+  //Up and Down Histo for RSQ prediction
+  TH1F *w_rsq_alphaUp = new TH1F("w_rsq_alphaUp","w_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *w_rsq_alphaDown = new TH1F("w_rsq_alphaDown","w_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *z_rsq_alphaUp = new TH1F("z_rsq_alphaUp","z_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *z_rsq_alphaDown = new TH1F("z_rsq_alphaDown","z_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *dy_rsq_alphaUp = new TH1F("dy_rsq_alphaUp","dy_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *dy_rsq_alphaDown = new TH1F("dy_rsq_alphaDown","dy_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *tt_rsq_alphaUp = new TH1F("tt_rsq_alphaUp","tt_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
+  TH1F *tt_rsq_alphaDown = new TH1F("tt_rsq_alphaDown","tt_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  
+  for(int z = 1; z <= r2Bins; z++){
+    double binValue = pred_R2_bkg_0b_0mu->GetBinContent(z);
+    double error = pred_R2_bkg_0b_0mu->GetBinError(z);
+    bkg_rsq_alphaUp->SetBinContent(z,binValue+error);
+    bkg_rsq_alphaDown->SetBinContent(z,binValue-error);
+    
+    double bv_w = p_w_1d_rsq->GetBinContent(z);
+    double be_w = p_w_1d_rsq->GetBinError(z);
+    w_rsq_alphaUp->SetBinContent(z,bv_w + be_w);
+    w_rsq_alphaDown->SetBinContent(z,bv_w - be_w);
+    
+    double bv_z = p_z_1d_rsq->GetBinContent(z);
+    double be_z = p_z_1d_rsq->GetBinError(z);
+    z_rsq_alphaUp->SetBinContent(z,bv_z + be_z);
+    z_rsq_alphaDown->SetBinContent(z,bv_z - be_z);
+    
+    double bv_dy = p_dy_1d_rsq->GetBinContent(z);
+    double be_dy = p_dy_1d_rsq->GetBinError(z);
+    dy_rsq_alphaUp->SetBinContent(z,bv_dy + be_dy);
+    dy_rsq_alphaDown->SetBinContent(z,bv_dy - be_dy);
+
+    double bv_tt = p_tt_1d_rsq->GetBinContent(z);
+    double be_tt = p_tt_1d_rsq->GetBinError(z);
+    tt_rsq_alphaUp->SetBinContent(z,bv_tt + be_tt);
+    tt_rsq_alphaDown->SetBinContent(z,bv_tt - be_tt);
+
+  }
+  
+  bkg_rsq_alphaUp->Write("bkg_rsq_alphaUp");
+  bkg_rsq_alphaDown->Write("bkg_rsq_alphaDown");
+  
+  p_w_1d_rsq->Write();
+  w_rsq_alphaUp->Write();
+  w_rsq_alphaDown->Write();
+  
+  p_z_1d_rsq->Write();
+  z_rsq_alphaUp->Write();
+  z_rsq_alphaDown->Write();
+  
+  p_dy_1d_rsq->Write();
+  dy_rsq_alphaUp->Write();
+  dy_rsq_alphaDown->Write();
+  
+  p_tt_1d_rsq->Write();
+  tt_rsq_alphaUp->Write();
+  tt_rsq_alphaDown->Write();
+  
   TFile *bkg_file_2D = new TFile("Pred_Files/BkgPred_ttMC_NNLO.root","RECREATE");
 
   bkg_file_2D->cd();
   bkg->Write("BkgPred_2d");
   data_0b_0mu->Write("Data_2d");
+     
+  
+  bkg_file_2D->cd();
+
+  
   bkg_file_1DRsq->cd();
-  //pred_R2_bkg_0b_0mu->Write("BkgPred_R2"); //   
-
-  double rbins[5] = {0.5, 0.65, 0.8, 1.0, 2.50};
-  double mrbins[5] = {200., 400., 600., 800., 3500.};
-  
   bkg_file_2D->cd();
-  //data_0b_0mu->Write();
-  bkg_file_1DRsq->cd();
-  //data_0b_0mu_R2->Write();
-  //data_0b_0mu->SetName("data_obs");
-  //data_0b_0mu_R2->SetName("data_obs");
-
-
-  bkg_file_2D->cd();
-  //data_0b_0mu->Write("data_2d");
-  //bkg_file_1DRsq->cd();
-  //data_0b_0mu_R2->Write("data_R2");
-
-
-  TH1F *bkg_rsq_alphaUp = new TH1F("bkg_rsq_alphaUp","bkg_rsq_alphaUp",4,rbins);
-  TH1F *bkg_rsq_alphaDown = new TH1F("bkg_rsq_alphaDown","bkg_rsq_alphaDown",4,rbins);
-
-  for (int z=0; z<4; z++)
-  {
-   double binValue = pred_R2_bkg_0b_0mu->GetBinContent(z+1);
-   double error = pred_R2_bkg_0b_0mu->GetBinError(z+1);
-   bkg_rsq_alphaUp->SetBinContent(z+1,binValue+error);
-   bkg_rsq_alphaDown->SetBinContent(z+1,binValue-error);
-  }
-  //bkg_file_1DRsq->Write();
-  //bkg_rsq_alphaUp->Write("BkgPred_R2_alphaUp");
-  //bkg_rsq_alphaDown->Write("BkgPred_R2_alphaDown");
-
-
-  TH2F *bkg_alphaUp = new TH2F("bkg_alphaUp","bkg_alphaUp",4,mrbins,4,rbins);
-  TH2F *bkg_alphaDown = new TH2F("bkg_alphaDown","bkg_alphaUp",4,mrbins,4,rbins);
-
-
-  for (int x=1; x<5; x++) //mr                                                 
-      {
-   for (int y=1; y<5; y++) // rsq                                           
-  	  {
-       double value_in =bkg->GetBinContent(x,y);
-       double error_low = bkg->GetBinError(x,y);
-       double error_high = bkg->GetBinError(x,y);
-       ////double error_low = 0;                                              
-       //double error_high = 0;                                             
-       bkg_alphaUp->SetBinContent(x,y,value_in+error_high);
-       bkg_alphaDown->SetBinContent(x,y,value_in-error_low);
-   }
-  }
-  bkg_file_2D->cd();
-  //bkg_alphaUp->Write("BkgPred_2d_alphaUp");
-  //bkg_alphaDown->Write("BkgPred_2d_alphaDown");
-
-
-
-  TH1F *bkg_1D = new TH1F("bkg_1D","bkg_1D",16,0,16);
-  TH1F *bkg_1D_alphaUp = new TH1F("bkg_1D_alphaUp","bkg_1D_alphaUp",16,0,16);
-  TH1F *bkg_1D_alphaDown = new TH1F("bkg_1D_alphaDown","bkg_1D_alphaDown",16,0,16);
-  TH1F *data_1D_unwrapt = new TH1F("data_unwrapt","data_Unwrapt_16bins",16,0,16);
-
   
-  TH1F *tt_1D = new TH1F("tt_1D","tt_1D",16,0,16);
-  TH1F *tt_1D_alphaUp = new TH1F("tt_1D_alphaUp","tt_1D_alphaUp",16,0,16);
-  TH1F *tt_1D_alphaDown = new TH1F("tt_1D_alphaDown","tt_1D_alphaDown",16,0,16);
+  TH2F *bkg_alphaUp = new TH2F("bkg_alphaUp","bkg_alphaUp",mrBins, BaseDM::MR_BinArr,r2Bins, BaseDM::RSQ_BinArr);
+  TH2F *bkg_alphaDown = new TH2F("bkg_alphaDown","bkg_alphaUp",mrBins, BaseDM::MR_BinArr,r2Bins, BaseDM::RSQ_BinArr);
 
-  TH1F *dy_1D = new TH1F("dy_1D","dy_1D",16,0,16);
-  TH1F *dy_1D_alphaUp = new TH1F("dy_1D_alphaUp","dy_1D_alphaUp",16,0,16);
-  TH1F *dy_1D_alphaDown = new TH1F("dy_1D_alphaDown","dy_1D_alphaDown",16,0,16);
 
-  TH1F *z_1D = new TH1F("z_1D","z_1D",16,0,16);
-  TH1F *z_1D_alphaUp = new TH1F("z_1D_alphaUp","z_1D_alphaUp",16,0,16);
-  TH1F *z_1D_alphaDown = new TH1F("z_1D_alphaDown","z_1D_alphaDown",16,0,16);
-
-  TH1F *w_1D = new TH1F("w_1D","w_1D",16,0,16);
-  TH1F *w_1D_alphaUp = new TH1F("w_1D_alphaUp","w_1D_alphaUp",16,0,16);
-  TH1F *w_1D_alphaDown = new TH1F("w_1D_alphaDown","w_1D_alphaDown",16,0,16);
+  for (int x = 1; x <= mrBins; x++) //mr 
+    {
+      for (int y = 1; y< r2Bins; y++) // rsq                                           
+	{
+	  double value_in =bkg->GetBinContent(x,y);
+	  double error_low = bkg->GetBinError(x,y);
+	  double error_high = bkg->GetBinError(x,y);
+	  bkg_alphaUp->SetBinContent(x,y,value_in+error_high);
+	  bkg_alphaDown->SetBinContent(x,y,value_in-error_low);
+	}
+    }
+  bkg_file_2D->cd();
   
-
+  TH1F *bkg_1D = new TH1F("bkg_1D","bkg_1D",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *bkg_1D_alphaUp = new TH1F("bkg_1D_alphaUp","bkg_1D_alphaUp",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *bkg_1D_alphaDown = new TH1F("bkg_1D_alphaDown","bkg_1D_alphaDown",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *data_1D_unwrapt = new TH1F("data_unwrapt","data_Unwrapt_16bins",mrBins*r2Bins,0,mrBins*r2Bins);
+  
+  TH1F *tt_1D = new TH1F("tt_1D","tt_1D",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *tt_1D_alphaUp = new TH1F("tt_1D_alphaUp","tt_1D_alphaUp",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *tt_1D_alphaDown = new TH1F("tt_1D_alphaDown","tt_1D_alphaDown",mrBins*r2Bins,0,mrBins*r2Bins);
+  
+  TH1F *dy_1D = new TH1F("dy_1D","dy_1D",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *dy_1D_alphaUp = new TH1F("dy_1D_alphaUp","dy_1D_alphaUp",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *dy_1D_alphaDown = new TH1F("dy_1D_alphaDown","dy_1D_alphaDown",mrBins*r2Bins,0,mrBins*r2Bins);
+  
+  TH1F *z_1D = new TH1F("z_1D","z_1D",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *z_1D_alphaUp = new TH1F("z_1D_alphaUp","z_1D_alphaUp",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *z_1D_alphaDown = new TH1F("z_1D_alphaDown","z_1D_alphaDown",mrBins*r2Bins,0,mrBins*r2Bins);
+  
+  TH1F *w_1D = new TH1F("w_1D","w_1D",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *w_1D_alphaUp = new TH1F("w_1D_alphaUp","w_1D_alphaUp",mrBins*r2Bins,0,mrBins*r2Bins);
+  TH1F *w_1D_alphaDown = new TH1F("w_1D_alphaDown","w_1D_alphaDown",mrBins*r2Bins,0,mrBins*r2Bins);
+  
+  
   int counter = 0;
-  for ( int i=1; i<5; i++)
-  {
-  for (int j=1; j<5; j++)
-  	{
-     counter++;
+  for ( int i=1; i<= mrBins; i++){
+    for (int j=1; j<= r2Bins; j++){
+      counter++;
       double results = bkg->GetBinContent(i,j);
       double results2 = bkg_alphaUp->GetBinContent(i,j);
       double results3 = bkg_alphaDown->GetBinContent(i,j);
@@ -508,11 +546,8 @@ int main(){
       bkg_1D_alphaDown->SetBinContent(counter,results3);
     }
   }
-  //bkg_file_1DRsq->Write("BkgPred_Unwrapt");
-  //data_1D_unwrapt->Write("data_Unwrapt");
-  //bkg_1D->Write("BkgPred_Unwrapt");
-  //bkg_1D_alphaUp->Write("BkgPred_Unwrapt_alphaUp");
-  //bkg_1D_alphaDown->Write("BkgPred_Unwrapt_alphaDown");
+    
+  std::cout << "HERE!!!" << std::endl;
   
   tt_1D->Write();
   tt_1D_alphaUp->Write();
@@ -521,7 +556,7 @@ int main(){
   dy_1D->Write();
   dy_1D_alphaUp->Write();
   dy_1D_alphaDown->Write();
-
+  
   z_1D->Write();
   z_1D_alphaUp->Write();
   z_1D_alphaDown->Write();
@@ -535,6 +570,7 @@ int main(){
   TTree *info2D = new TTree("info2D","ROOT Tree");
   TTree *info1D = new TTree("info1D","ROOT Tree");
 
+  std::cout << "HERE1!!!" << std::endl;
 
   double num_bkg_1D_Rsq;
   double num_bkg_1D;
@@ -552,6 +588,8 @@ int main(){
   info1D->Fill();
   bkg_file_1DRsq->cd();
 
+  std::cout << "HERE2!!!" << std::endl;
+
   info1D->Branch("num_bkg_1D_Rsq",&num_bkg_1D_Rsq,"num_bkg_1D_Rsq/D");
   info2D->Branch("num_bkg_1D",&num_bkg_1D,"num_bkg_1D/D");
   info1D->Branch("num_data_1D_Rsq",&num_data_1D_Rsq,"num_data_1D_Rsq/D");
@@ -562,16 +600,13 @@ int main(){
   num_data_1D = data_0b_0mu->Integral();
   info1D->Fill();
   bkg_file_1DRsq->cd();
-  //info1D->Write();
-  bkg_file_2D->cd();
-  //info2D->Write();
   
-
-
-  f->Close();
-  f1->Close();
-  F->Close();
-
+  bkg_file_2D->cd();
+  
+  
+  bkg_file_2D->Close();
+  bkg_file_1DRsq->Close();
+  
   return 0;
 
 }
