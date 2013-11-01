@@ -423,20 +423,20 @@ int main(){
   bkg_rsq_alphaDown->Write("bkg_rsq_alphaDown");
   
   p_w_1d_rsq->Write();
-  w_rsq_alphaUp->Write();
-  w_rsq_alphaDown->Write();
+  w_rsq_alphaUp->Write("w_rsq_zetaUp");
+  w_rsq_alphaDown->Write("w_rsq_zetaDown");
   
   p_z_1d_rsq->Write();
-  z_rsq_alphaUp->Write();
-  z_rsq_alphaDown->Write();
+  z_rsq_alphaUp->Write("z_rsq_deltaUp");
+  z_rsq_alphaDown->Write("z_rsq_deltaDown");
   
   p_dy_1d_rsq->Write();
-  dy_rsq_alphaUp->Write();
-  dy_rsq_alphaDown->Write();
+  dy_rsq_alphaUp->Write("dy_rsq_gammaUp");
+  dy_rsq_alphaDown->Write("dy_rsq_gammaDown");
   
   p_tt_1d_rsq->Write();
-  tt_rsq_alphaUp->Write();
-  tt_rsq_alphaDown->Write();
+  tt_rsq_alphaUp->Write("tt_rsq_betaUp");
+  tt_rsq_alphaDown->Write("tt_rsq_betaDown");
   
   TFile *bkg_file_2D = new TFile("Pred_Files/BkgPred_ttMC_NNLO.root","RECREATE");
 
