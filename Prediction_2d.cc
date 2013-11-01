@@ -14,7 +14,8 @@
 int main(){
   
   gROOT->Reset();
-  TFile* f = new TFile("Pred_Files/BkgPred_FullData_BtagCorr.root");
+  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO_NewBinning.root");
+  //TFile* f = new TFile("Pred_Files/BkgPred_FullData_BtagCorr.root");
   TH2F* Pred2D = (TH2F*)f->Get("BkgPred_2d");
   TH2F* Data2D = (TH2F*)f->Get("Data_2d");
 
@@ -67,15 +68,16 @@ int main(){
   Data2D->SetTitle("");
   Data2D->SetMaximum(8.0*1e3);
   Data2D->Draw("colztext");
-  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr.pdf");
-  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr.png");
+  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5.pdf");
+  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5.png");
  
   
-  
-  TH1F* h[16]; 
-  double p_val[16], n_sigma[16];
+  int mrbins = 5;
+  int r2bins = 5;
+  TH1F* h[mrbins*r2bins]; 
+  double p_val[mrbins*r2bins], n_sigma[mrbins*r2bins];
   int ctr = 0;
-  int n_toys = 1e8;
+  int n_toys = 1e6;
   for(int i = 1; i <= Pred2D->GetNbinsX(); i++){
     for(int j = 1; j <= Pred2D->GetNbinsY(); j++){	
       
@@ -84,23 +86,23 @@ int main(){
       
       double obs = Data2D->GetBinContent(i,j);
       
-      h[(j-1)+(i-1)*4] = new TH1F("h","h", 1000, mean-1000, mean+1000);
+      h[(j-1)+(i-1)*r2bins] = new TH1F("h","h", 1000, mean-1000, mean+1000);
       
       TRandom3 r1(0);
       TRandom3 r2(0);
       for(int t = 0; t < n_toys; t++){
-	double Lambda = r1.Gaus(mean, sigma);
+	double Lambda = r1.Gaus(mean, sigma+0.2*sigma);
 	double pois = r2.Poisson(Lambda);
-	h[(j-1)+(i-1)*4]->Fill(pois);
+	h[(j-1)+(i-1)*r2bins]->Fill(pois);
       }
       
-      int bin = h[(j-1)+(i-1)*4]->FindBin(obs);
+      int bin = h[(j-1)+(i-1)*r2bins]->FindBin(obs);
       std::cout << "bin: " << bin << std::endl;
-      double pval = h[(j-1)+(i-1)*4]->Integral(bin,1000);
+      double pval = h[(j-1)+(i-1)*r2bins]->Integral(bin,1000);
       pval = (double)pval/n_toys;
       std::cout << "p-value: " << pval << " nSigma: " << sqrt(2)*TMath::ErfInverse(2*(0.5-pval)) << std::endl;
-      n_sigma[(j-1)+(i-1)*4] = sqrt(2)*TMath::ErfInverse(2*(0.5-pval));
-      p_val[(j-1)+(i-1)*4] = pval;
+      n_sigma[(j-1)+(i-1)*r2bins] = sqrt(2)*TMath::ErfInverse(2*(0.5-pval));
+      p_val[(j-1)+(i-1)*r2bins] = pval;
       ctr++;
     }
   }
@@ -114,8 +116,18 @@ int main(){
   c->cd(2);
   h[1]->Draw();
 
-  const float RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};                                                     
-  const float MR_BinArr[] = {200., 400., 600., 800., 3500.};
+  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};5x7                                                     
+  //const float MR_BinArr[] = {200., 300., 400., 500, 600., 700., 800., 3500.};
+  
+  //const float RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};4x4                                                     
+  //const float MR_BinArr[] = {200., 400., 600., 800., 3500.};
+  
+  const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};//5x5 original                                                  
+  const float MR_BinArr[] = {200., 300., 400., 600., 800., 3500.};
+  
+  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};//5x5 v2                                                     
+  //const float MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};
+
   const int NRGBs = 7;
   const int NCont = 999;
   
@@ -126,12 +138,12 @@ int main(){
   TColor::CreateGradientColorTable(NRGBs, stops, red, green, blue, NCont);
   gStyle->SetNumberContours(NCont);
 
-  TH2F* flag = new TH2F("flag", "flag", 4, MR_BinArr, 4, RSQ_BinArr);
+  TH2F* flag = new TH2F("flag", "flag", mrbins, MR_BinArr, r2bins, RSQ_BinArr);
   
-  for(int i = 1; i <= 4; i++){
-    for(int j = 1; j <= 4; j++){
+  for(int i = 1; i <= mrbins; i++){
+    for(int j = 1; j <= r2bins; j++){
       int bin = flag->GetBin(i,j);
-      flag->SetBinContent(bin,n_sigma[(j-1)+(i-1)*4]);
+      flag->SetBinContent(bin,n_sigma[(j-1)+(i-1)*r2bins]);
     }
   }
   
@@ -168,8 +180,8 @@ int main(){
     }
   }
   
-  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr.pdf");
-  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr.pdf");
+  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr5x5.pdf");
+  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr5x5.png");
   
   return 0;
   
