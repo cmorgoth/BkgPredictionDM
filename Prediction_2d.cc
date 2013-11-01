@@ -1,7 +1,24 @@
-{
+#include <iostream>
+#include <fstream>
+#include "TFile.h"
+#include "TH2F.h"
+#include "TH1F.h"
+#include "TROOT.h"
+#include "TCanvas.h"
+#include "TLatex.h"
+#include "TRandom3.h"
+#include "TMath.h"
+#include "TColor.h"
+#include "TStyle.h"
+
+int main(){
   
   gROOT->Reset();
+<<<<<<< HEAD
   TFile* f = new TFile("Pred_Files/BkgPred_ttMC_NNLO.root");
+=======
+  TFile* f = new TFile("Pred_Files/BkgPred_FullData_BtagCorr.root");
+>>>>>>> b246c21a89305ac6739efbbad1b1003f054164d6
   TH2F* Pred2D = (TH2F*)f->Get("BkgPred_2d");
   TH2F* Data2D = (TH2F*)f->Get("Data_2d");
 
@@ -54,10 +71,10 @@
   Data2D->SetTitle("");
   Data2D->SetMaximum(8.0*1e3);
   Data2D->Draw("colztext");
-  c->SaveAs("pred_text_DataMC_LO.pdf");
-  c->SaveAs("pred_text_DataMC_LO.png");
+  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr.pdf");
+  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr.png");
  
-
+  
   
   TH1F* h[16]; 
   double p_val[16], n_sigma[16];
@@ -154,8 +171,10 @@
       }
     }
   }
-
-  c1->SaveAs("french_flag_DM.pdf");
-  c1->SaveAs("french_flag_DM.pdf");
+  
+  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr.pdf");
+  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr.pdf");
+  
+  return 0;
   
 }
