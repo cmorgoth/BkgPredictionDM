@@ -16,6 +16,7 @@ int main(){
   gROOT->Reset();
   TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO_NewBinning.root");
   //TFile* f = new TFile("Pred_Files/BkgPred_FullData_BtagCorr.root");
+
   TH2F* Pred2D = (TH2F*)f->Get("BkgPred_2d");
   TH2F* Data2D = (TH2F*)f->Get("Data_2d");
 
@@ -77,7 +78,11 @@ int main(){
   TH1F* h[mrbins*r2bins]; 
   double p_val[mrbins*r2bins], n_sigma[mrbins*r2bins];
   int ctr = 0;
+<<<<<<< HEAD
   int n_toys = 1e6;
+=======
+  int n_toys = 1e7;
+>>>>>>> 100d60ef7a3751c470f583bc0dc808c8e8770691
   for(int i = 1; i <= Pred2D->GetNbinsX(); i++){
     for(int j = 1; j <= Pred2D->GetNbinsY(); j++){	
       

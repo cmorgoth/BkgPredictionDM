@@ -65,14 +65,9 @@ int main(){
   ///////////////////////////////////////////
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
-<<<<<<< HEAD
+  TFile* F = new TFile("VetoBtag_FullPromtReco_NNLoXsec_All.root");
   //TFile* F = new TFile("VetoBtagFullPromtReco.root");
-  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
-=======
-  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
-  //TFile* F = new TFile("VetoBtag_FullPromtReco.root");
->>>>>>> f7c9161c66072484b5d1f304be54ddbbd1ef058a
-  TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
+    TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
   TH2F* tt_0b_0mu = (TH2F*)F->Get("TT_2d_0mu");
   TH2F* dy_0b_2mu = (TH2F*)F->Get("dy_2d_2mu");
