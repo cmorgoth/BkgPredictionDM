@@ -14,8 +14,11 @@
 //const float BaseDM::RSQ_BinArr[] = {0.5, 0.7, 0.9, 1.1, 2.50};
 //const float BaseDM::MR_BinArr[] = {200., 466., 732., 1000., 3500.};
 
-const float BaseDM::RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};                                                     
-const float BaseDM::MR_BinArr[] = {200., 400., 600., 800., 3500.};   
+//const float BaseDM::RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};                                                     
+//const float BaseDM::MR_BinArr[] = {200., 400., 600., 800., 3500.};  
+ 
+const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};
+const float BaseDM::MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};
 
 int main(){
   gROOT->Reset();
@@ -25,7 +28,7 @@ int main(){
   //////////////1Tight Btag///////////////
   ////////////////////////////////////////
   //TFile* f = new TFile("1Tight.root");
-  TFile* f = new TFile("One_TightBtag_FullPromtReco.root");
+  TFile* f = new TFile("FinalROOTFiles/TwoBtag_LOXsec_NewBinning.root");
   TH2F* data_1b_2mu = (TH2F*)f->Get("data_2d_2mu");
   TH2F* data_1b_1mu = (TH2F*)f->Get("data_2d_1mu");
   TH2F* data_1b_0mu = (TH2F*)f->Get("data_2d_0mu");
@@ -54,7 +57,7 @@ int main(){
   //////////////1Tight 1Med///////////////////
   ///////////////////////////////////////////
     
-  TFile* f1 = new TFile("One_Tight_OneMed_Btag_FullPromtReco.root");
+  TFile* f1 = new TFile("FinalROOTFiles/TwoBtag_LOXsec_NewBinning.root");
   TH2F* data_2b_1mu = (TH2F*)f1->Get("data_2d_1mu");
   TH1F* data_2b_1mu_MR = (TH1F*)f1->Get("data_MR_1mu");
   TH1F* data_2b_1mu_R2 = (TH1F*)f1->Get("data_R2_1mu");
@@ -65,9 +68,11 @@ int main(){
   ///////////////////////////////////////////
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
-  TFile* F = new TFile("VetoBtag_FullPromtReco_NNLoXsec_All.root");
-  //TFile* F = new TFile("VetoBtagFullPromtReco.root");
-    TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger_Feb4_2014_InvMassCut_Feb7.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger__btagCorr_Feb14_2014.root");
+  TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger_btagCorr_ISR_Feb19_2014.root");
+  
+  TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
   TH2F* tt_0b_0mu = (TH2F*)F->Get("TT_2d_0mu");
   TH2F* dy_0b_2mu = (TH2F*)F->Get("dy_2d_2mu");
@@ -132,8 +137,8 @@ int main(){
   std::cout << "Drell-Yan Prediction 0b 1mu box: " << Integral << " error: " << error << std::endl;
   TH1F* pred_MR_dy_0b_1mu = (TH1F*)p_0b_1mu_dy->ProjectionX("MR_dy_1mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_dy_0b_1mu = (TH1F*)p_0b_1mu_dy->ProjectionY("R2_dy_1mu_0b_pred", 0, -1, "eo");
-  RatioPlots( dy_0b_1mu_MR, pred_MR_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_MR_1mu_0b_pred", "MR");
-  RatioPlots( dy_0b_1mu_R2, pred_R2_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_R2_1mu_0b_Pred", "RSQ");
+  //RatioPlots( dy_0b_1mu_MR, pred_MR_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_MR_1mu_0b_pred", "MR");
+  //RatioPlots( dy_0b_1mu_R2, pred_R2_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_R2_1mu_0b_Pred", "RSQ");
   
 
   ////////////////////////////////////////
@@ -149,8 +154,8 @@ int main(){
   TH1F* pred_R2_W_0b_1mu = (TH1F*)p_0b_1mu_W->ProjectionY("R2_W_1mu_0b_pred", 0, -1, "eo");
   //RatioPlots( W_0b_1mu_MR, pred_MR_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "RatioPlots/W_MR_1mu_0b_pred", "MR");
   //RatioPlots( W_0b_1mu_R2, pred_R2_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "RatioPlots/W_R2_1mu_0b_Pred", "RSQ");
-  RatioPlots( W_0b_1mu_MR, pred_MR_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_MR_1mu_0b_pred_ttMC", "MR");
-  RatioPlots( W_0b_1mu_R2, pred_R2_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_R2_1mu_0b_Pred_ttMC", "RSQ");
+  //RatioPlots( W_0b_1mu_MR, pred_MR_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_MR_1mu_0b_pred_ttMC", "MR");
+  //RatioPlots( W_0b_1mu_R2, pred_R2_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_R2_1mu_0b_Pred_ttMC", "RSQ");
   
   ///////////////////////////////////
   /////////Drell-Yan 0 mu box////////
@@ -167,8 +172,8 @@ int main(){
   std::cout << "Drell-Yan Prediction 0b 0mu box: " << Integral << " error: " << error << std::endl;
   TH1F* pred_MR_dy_0b_0mu = (TH1F*)p_0b_0mu_dy->ProjectionX("MR_dy_0mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_dy_0b_0mu = (TH1F*)p_0b_0mu_dy->ProjectionY("R2_dy_0mu_0b_pred", 0, -1, "eo");
-  RatioPlots( dy_0b_0mu_MR, pred_MR_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_MR_0mu_0b_pred", "MR");
-  RatioPlots( dy_0b_0mu_R2, pred_R2_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_R2_0mu_0b_Pred", "RSQ");
+  //RatioPlots( dy_0b_0mu_MR, pred_MR_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_MR_0mu_0b_pred", "MR");
+  //RatioPlots( dy_0b_0mu_R2, pred_R2_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_R2_0mu_0b_Pred", "RSQ");
   
   ////////////////////////////////////////
   /////////Z(nunu) 0 mu box///////////////
@@ -199,8 +204,8 @@ int main(){
   std::cout << "W Prediction 0b 0mu box: " << Integral << " error: " << error << std::endl;
   TH1F* pred_MR_W_0b_0mu = (TH1F*)p_0b_0mu_W->ProjectionX("MR_W_0mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_W_0b_0mu = (TH1F*)p_0b_0mu_W->ProjectionY("R2_W_0mu_0b_pred", 0, -1, "eo");
-  RatioPlots( W_0b_0mu_MR, pred_MR_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_MR_0mu_0b_pred", "MR");
-  RatioPlots( W_0b_0mu_R2, pred_R2_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_R2_0mu_0b_Pred", "RSQ");
+  //RatioPlots( W_0b_0mu_MR, pred_MR_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_MR_0mu_0b_pred", "MR");
+  //RatioPlots( W_0b_0mu_R2, pred_R2_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_R2_0mu_0b_Pred", "RSQ");
 
   ////////////////////////////////////////////
   ////////Total Prediction 0-mu box///////////

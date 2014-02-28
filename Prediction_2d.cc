@@ -10,11 +10,29 @@
 #include "TMath.h"
 #include "TColor.h"
 #include "TStyle.h"
+#include "TEfficiency.h"
 
 int main(){
   
   gROOT->Reset();
-  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO_NewBinning.root");
+  
+  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};5x7                                                     
+  //const float MR_BinArr[] = {200., 300., 400., 500, 600., 700., 800., 3500.};
+  
+  //const float RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};4x4                                                     
+  //const float MR_BinArr[] = {200., 400., 600., 800., 3500.};
+  
+  const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};//5x5 original                                                  
+  const float MR_BinArr[] = {200., 300., 400., 600., 800., 3500.};
+  
+  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};//5x5 v2                                                     
+  //const float MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};
+  TFile* f_mu = new TFile("/Users/cmorgoth/Dropbox/DM/hlt_eff_DoubleMuonPD_Final.root");
+  TEfficiency* mu_eff = (TEfficiency*)f_mu->Get("Eff2d");
+  TFile* f_ele = new TFile("/Users/cmorgoth/Dropbox/DM/hlt_eff_SignleElePD_Final.root");
+  TEfficiency* ele_eff = (TEfficiency*)f_ele->Get("Eff2d");
+  
+  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO_RunAB.root");
   //TFile* f = new TFile("Pred_Files/BkgPred_FullData_BtagCorr.root");
 
   TH2F* Pred2D = (TH2F*)f->Get("BkgPred_2d");
@@ -69,8 +87,8 @@ int main(){
   Data2D->SetTitle("");
   Data2D->SetMaximum(8.0*1e3);
   Data2D->Draw("colztext");
-  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5.pdf");
-  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5.png");
+  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5_2sigma_InvMassCut.pdf");
+  c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5_2sigma_InvMassCut.png");
  
   
   int mrbins = 5;
@@ -78,17 +96,18 @@ int main(){
   TH1F* h[mrbins*r2bins]; 
   double p_val[mrbins*r2bins], n_sigma[mrbins*r2bins];
   int ctr = 0;
-<<<<<<< HEAD
   int n_toys = 1e6;
-=======
-  int n_toys = 1e7;
->>>>>>> 100d60ef7a3751c470f583bc0dc808c8e8770691
+  
   for(int i = 1; i <= Pred2D->GetNbinsX(); i++){
     for(int j = 1; j <= Pred2D->GetNbinsY(); j++){	
       
       double mean =  Pred2D->GetBinContent(i,j);
       double sigma = Pred2D->GetBinError(i,j);
-      
+      double b_center_MR = (MR_BinArr[i] - MR_BinArr[i-1])/2.0 + MR_BinArr[i-1];
+      double b_center_R2 = (RSQ_BinArr[j] - RSQ_BinArr[j-1])/2.0 + RSQ_BinArr[j-1];
+      int bin_trigg = mu_eff->FindFixBin(b_center_MR, b_center_R2);
+      double trigg_err = sqrt( pow(mu_eff->GetEfficiencyErrorLow(bin_trigg),2) + pow(ele_eff->GetEfficiencyErrorLow(bin_trigg),2) );
+      std::cout << "bin centers: (" << b_center_MR << ", " << b_center_R2 << ") == bin_trigg: " << bin_trigg << "==Trigg. Error: " << trigg_err << std::endl;
       double obs = Data2D->GetBinContent(i,j);
       
       h[(j-1)+(i-1)*r2bins] = new TH1F("h","h", 1000, mean-1000, mean+1000);
@@ -96,7 +115,8 @@ int main(){
       TRandom3 r1(0);
       TRandom3 r2(0);
       for(int t = 0; t < n_toys; t++){
-	double Lambda = r1.Gaus(mean, sigma+0.2*sigma);
+	//double Lambda = r1.Gaus(mean, sigma+mean*trigg_err);
+	double Lambda = r1.Gaus(mean, 2*sigma);
 	double pois = r2.Poisson(Lambda);
 	h[(j-1)+(i-1)*r2bins]->Fill(pois);
       }
@@ -121,17 +141,6 @@ int main(){
   c->cd(2);
   h[1]->Draw();
 
-  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};5x7                                                     
-  //const float MR_BinArr[] = {200., 300., 400., 500, 600., 700., 800., 3500.};
-  
-  //const float RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};4x4                                                     
-  //const float MR_BinArr[] = {200., 400., 600., 800., 3500.};
-  
-  const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};//5x5 original                                                  
-  const float MR_BinArr[] = {200., 300., 400., 600., 800., 3500.};
-  
-  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};//5x5 v2                                                     
-  //const float MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};
 
   const int NRGBs = 7;
   const int NCont = 999;
@@ -185,8 +194,8 @@ int main(){
     }
   }
   
-  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr5x5.pdf");
-  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr5x5.png");
+  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr5x5_2sigma_InvMassCut.pdf");
+  c1->SaveAs("french_flag_DM_LO_Dphi_FullData_BtagCorr5x5_2sigma_InvMassCut.png");
   
   return 0;
   

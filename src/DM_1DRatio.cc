@@ -11,16 +11,16 @@ int RatioPlots(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "
   if(type == "MR"){
     RATIO = new TH1F("RATIO", fname + "_" + type , BaseDM::MR_Bins, BaseDM::MR_BinArr);
     label = "M_{R}";
-    h1->GetXaxis()->SetRangeUser(200,3500);
-    h2->GetXaxis()->SetRangeUser(200,3500);
-    RATIO->GetXaxis()->SetRangeUser(200,3500);
+    //h1->GetXaxis()->SetRangeUser(200,3500);
+    //h2->GetXaxis()->SetRangeUser(200,3500);
+    //RATIO->GetXaxis()->SetRangeUser(200,3500);
 
   }else if(type == "RSQ" ){
     RATIO = new TH1F("RATIO", fname + "_" + type , BaseDM::RSQ_Bins, BaseDM::RSQ_BinArr);
     label = "R^{2}";
-    h1->GetXaxis()->SetRangeUser(0.5, 2.5);
-    h2->GetXaxis()->SetRangeUser(0.5, 2.5);
-    RATIO->GetXaxis()->SetRangeUser(0.5, 2.5);
+    //h1->GetXaxis()->SetRangeUser(0.5, 2.5);
+    //h2->GetXaxis()->SetRangeUser(0.5, 2.5);
+    //RATIO->GetXaxis()->SetRangeUser(0.5, 2.5);
 
   }else{
     delete RATIO;
@@ -161,8 +161,9 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
       std::cout << "BinContent: " << h1->GetBinContent(i,j) << std::endl;
     }
   }
-  RATIO->GetYaxis()->SetRangeUser(.0, 4.05);
-  RATIO2->GetYaxis()->SetRangeUser(.0, 4.05);
+  RATIO->GetYaxis()->SetRangeUser(.0, 2.05);
+  RATIO2->GetYaxis()->SetRangeUser(.0, 2.05);
+ 
   RATIO->Sumw2();
   RATIO2->Sumw2();
   h1->SetLineColor(1);//data
@@ -192,10 +193,12 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   pad1->SetBottomMargin(0);
   pad1->Draw();
   pad1->cd();
+  //h1->GetYaxis()->SetRangeUser(.0, 10000);
   h1->Draw("pe");
   h2->DrawCopy("E2same");
   h2clone->DrawCopy("hist same");
   h1->Draw("pesame");
+  pad1->Update();
   C->cd();
   
   h2->SetLineColor(kGreen);
@@ -213,9 +216,9 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   t->SetNDC();
   t->SetTextAlign(22);
   t->SetTextSize(0.03);
-  t->DrawLatex(0.35,0.87,"CMS Preliminary");
-  t->DrawLatex(0.35,0.83,"#sqrt{s} = 8 TeV");
-  t->DrawLatex(0.35,0.77,"#int L dt = 19.6 fb^{-1}");
+  t->DrawLatex(0.22,0.95,"CMS Preliminary:");
+  t->DrawLatex(0.42,0.95,"#sqrt{s} = 8 TeV,");
+  t->DrawLatex(0.62,0.95,"#int L dt = 18.5 fb^{-1}");
   
   TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.25);
   pad2->SetTopMargin(0);
@@ -237,7 +240,7 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   RATIO->SetXTitle( label );
   RATIO->SetYTitle("Ratio");
   RATIO->SetLineColor(1);
-  RATIO->SetMarkerSize(.7);
+  RATIO->SetMarkerSize(.6);
   RATIO->SetMarkerColor(1);
   RATIO->SetMarkerStyle(20);
   RATIO->SetFillColor(kGreen-10);
@@ -303,7 +306,7 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
     h2->GetXaxis()->SetRangeUser(0.5, 2.50);
     RATIO->GetXaxis()->SetRangeUser(0.5, 2.50);
     RATIO->GetYaxis()->SetRangeUser(.0, 2.0);
-    s->SetMaximum(100000.);
+    s->GetYaxis()->SetRangeUser(.0, 5000);
   }else if(type == "MET"){
     RATIO = new TH1F("RATIO", fname + "_" + type , 50, 0, 1000);
     label = "#slash{E}_{T}  GeV";
@@ -321,7 +324,7 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
   
   //std::cout << "=====================Dividing Histograms=====================" << std::endl;
   RATIO->Divide(h2, h1, 1, 1, "");
-  RATIO->GetYaxis()->SetRangeUser(.0, 3.05);
+  RATIO->GetYaxis()->SetRangeUser(.0, 2.05);
   h2->SetMarkerSize(.7);
   h2->SetStats(0);
   

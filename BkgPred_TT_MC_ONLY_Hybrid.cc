@@ -47,9 +47,8 @@ int main(){
   /////////////////////////////////////////
   //////////////1Tight Btag///////////////
   ////////////////////////////////////////
-  TFile* f = new TFile("One_Tight_Btag_FullPromtReco_NNLoXsec.root");
-  //TFile* f = new TFile("One_Tight_Btag_FullPromtReco_LoXsec.root");
-
+  TFile* f = new TFile("FinalROOTFiles/TwoBtag_NNLOXsec_NewBinning.root");
+  
   TH2F* data_1b_2mu = (TH2F*)f->Get("data_2d_2mu");
   TH2F* data_1b_1mu = (TH2F*)f->Get("data_2d_1mu");
   TH2F* data_1b_0mu = (TH2F*)f->Get("data_2d_0mu");
@@ -78,9 +77,8 @@ int main(){
   //////////////1Tight 1Med///////////////////
   ///////////////////////////////////////////
     
-  TFile* f1 = new TFile("Two_Tight_Btag_FullPromtReco_TT_NNLoXsec.root");
-  //TFile* f1 = new TFile("Two_Tight_Btag_FullPromtReco_LoXsec.root");
-  
+  TFile* f1 = new TFile("FinalROOTFiles/TwoBtag_NNLOXsec_NewBinning.root");
+    
   TH2F* data_2b_1mu = (TH2F*)f1->Get("data_2d_1mu");
   TH1F* data_2b_1mu_MR = (TH1F*)f1->Get("data_MR_1mu");
   TH1F* data_2b_1mu_R2 = (TH1F*)f1->Get("data_R2_1mu");
@@ -91,10 +89,11 @@ int main(){
   ///////////////////////////////////////////
   ////////////////Veto Btag/////////////////
   //////////////////////////////////////////
-  //TFile* F = new TFile("VetoBtag_FullPromtReco.root");
-  TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec_NewBinning5x5_v2.root");
-  //TFile* F = new TFile("VetoBtag_FullPromtReco_LoXsec.root");
-  
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger_Feb4_2014_InvMassCut_Feb7.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger_Feb4_2014.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger__btagCorr_Feb14_2014.root");
+  TFile* F = new TFile("FinalROOTFiles/VetoBtag_Parked_RunBCD_ParkedTrigger_btagCorr_ISR_Feb19_2014.root");
+    
   TH2F* tt_0b_2mu = (TH2F*)F->Get("TT_2d_2mu");
   TH2F* tt_0b_1mu = (TH2F*)F->Get("TT_2d_1mu");	
   TH2F* tt_0b_0mu = (TH2F*)F->Get("TT_2d_0mu");
@@ -137,10 +136,19 @@ int main(){
   TH1F* Z_0b_0mu_MR = (TH1F*)F->Get("Z_MR_0mu");
   TH1F* Z_0b_0mu_R2 = (TH1F*)F->Get("Z_R2_0mu");
 
+
+
+  TString ex_s = "_Hybrid";
+
   /////////////////////////////////////////////////////////
   /////////////////DY 2mu Prediction//////////////////////
   ////////////////////////////////////////////////////////
   
+  double data_2mu_total = data_0b_2mu->Integral();
+  double MC_2mu_total = 1.0*(tt_0b_2mu->Integral()) + 1.0*(dy_0b_2mu->Integral());
+
+  std::cout << "=========Ratio Data/MC ====== 2mu:   " << data_2mu_total/MC_2mu_total << std::endl;
+
   TH2F* p_0b_2mu_dy = new TH2F(*data_0b_2mu);
   p_0b_2mu_dy->Add(tt_0b_2mu, -1.0);
   
@@ -154,9 +162,22 @@ int main(){
   //////////////////////////////////////////
   ////////Drell-Yan 1 mu box///////////////
   /////////////////////////////////////////
+  std::cout << "Int: " << dy_0b_1mu_MR->Integral() <<std::endl;
+  std::cout << "Int: " << dy_0b_1mu_R2->Integral() <<std::endl;
+  std::cout << "Int: " << dy_0b_2mu_MR->Integral() <<std::endl;
+  std::cout << "Int: " << dy_0b_2mu_R2->Integral() <<std::endl;
   
-  RatioPlots( dy_0b_1mu_MR, dy_0b_2mu_MR, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_MR_1mu_to_2mu", "MR");
-  RatioPlots( dy_0b_1mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_R2_1mu_to_2mu", "RSQ");
+  double sc_dy_1mu = dy_0b_1mu_MR->Integral();
+  double sc_dy_2mu = dy_0b_2mu_MR->Integral();
+  
+  dy_0b_1mu_MR->Scale(1.0/dy_0b_1mu_MR->Integral());
+  dy_0b_2mu_MR->Scale(1.0/dy_0b_2mu_MR->Integral());
+  dy_0b_1mu_R2->Scale(1.0/dy_0b_1mu_R2->Integral());
+  dy_0b_2mu_R2->Scale(1.0/dy_0b_2mu_R2->Integral());
+  
+  RatioPlots( dy_0b_1mu_MR, dy_0b_2mu_MR, "Z/#gamma^{*}(ll) MC 1-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/dy_MR_1mu_to_2mu"+ex_s, "MR");
+  RatioPlots( dy_0b_1mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*}(ll) MC 1-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/dy_R2_1mu_to_2mu"+ex_s, "RSQ");
+
   TH2F* p_0b_1mu_dy = new TH2F( *data_0b_2mu );//Drell-Yan prediction for 0b 1mu box
   p_0b_1mu_dy->Add(tt_0b_2mu, -1.0);//Subtracting tt 0b 2mu from MC
   TH2F* r_0b_1mu_dy = new TH2F( *dy_0b_1mu );
@@ -167,8 +188,8 @@ int main(){
   std::cout << "Drell-Yan Prediction 0b 1mu box: " << Integral << " error: " << error << std::endl;
   TH1F* pred_MR_dy_0b_1mu = (TH1F*)p_0b_1mu_dy->ProjectionX("MR_dy_1mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_dy_0b_1mu = (TH1F*)p_0b_1mu_dy->ProjectionY("R2_dy_1mu_0b_pred", 0, -1, "eo");
-  RatioPlots( dy_0b_1mu_MR, pred_MR_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_MR_1mu_0b_pred", "MR");
-  RatioPlots( dy_0b_1mu_R2, pred_R2_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_R2_1mu_0b_Pred", "RSQ");
+  //RatioPlots( dy_0b_1mu_MR, pred_MR_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_MR_1mu_0b_pred", "MR");
+  //RatioPlots( dy_0b_1mu_R2, pred_R2_dy_0b_1mu, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} Pred 1-#mu BOX", "PredPlots/dy_R2_1mu_0b_Pred", "RSQ");
   
 
   ////////////////////////////////////////
@@ -184,14 +205,18 @@ int main(){
   TH1F* pred_R2_W_0b_1mu = (TH1F*)p_0b_1mu_W->ProjectionY("R2_W_1mu_0b_pred", 0, -1, "eo");
   //RatioPlots( W_0b_1mu_MR, pred_MR_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "RatioPlots/W_MR_1mu_0b_pred", "MR");
   //RatioPlots( W_0b_1mu_R2, pred_R2_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "RatioPlots/W_R2_1mu_0b_Pred", "RSQ");
-  RatioPlots( W_0b_1mu_MR, pred_MR_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_MR_1mu_0b_pred_ttMC", "MR");
-  RatioPlots( W_0b_1mu_R2, pred_R2_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_R2_1mu_0b_Pred_ttMC", "RSQ");
+  //RatioPlots( W_0b_1mu_MR, pred_MR_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_MR_1mu_0b_pred_ttMC", "MR");
+  //RatioPlots( W_0b_1mu_R2, pred_R2_W_0b_1mu, "W MC 1-#mu BOX", "W Pred 1-#mu BOX", "PredPlots/W_R2_1mu_0b_Pred_ttMC", "RSQ");
   
   ///////////////////////////////////
   /////////Drell-Yan 0 mu box////////
   //////////////////////////////////
-  RatioPlots( dy_0b_0mu_MR, dy_0b_2mu_MR, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_MR_0mu_to_2mu", "MR");
-  RatioPlots( dy_0b_0mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_R2_0mu_to_2mu", "RSQ");
+  
+  dy_0b_0mu_MR->Scale(1.0/dy_0b_0mu_MR->Integral());
+  dy_0b_0mu_R2->Scale(1.0/dy_0b_0mu_R2->Integral());
+  
+  RatioPlots( dy_0b_0mu_MR, dy_0b_2mu_MR, "Z/#gamma^{*}(ll) MC 0-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/dy_MR_0mu_to_2mu"+ex_s, "MR");
+  RatioPlots( dy_0b_0mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*}(ll) MC 0-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/dy_R2_0mu_to_2mu"+ex_s, "RSQ");
   TH2F* p_0b_0mu_dy = new TH2F( *data_0b_2mu );//Drell-Yan prediction for 0b 0mu box
   p_0b_0mu_dy->Add(tt_0b_2mu, -1.0);//Subtracting tt 0b 2mu from MC
   TH2F* r_0b_0mu_dy = new TH2F( *dy_0b_0mu );
@@ -202,13 +227,18 @@ int main(){
   std::cout << "Drell-Yan Prediction 0b 0mu box: " << Integral << " error: " << error << std::endl;
   TH1F* pred_MR_dy_0b_0mu = (TH1F*)p_0b_0mu_dy->ProjectionX("MR_dy_0mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_dy_0b_0mu = (TH1F*)p_0b_0mu_dy->ProjectionY("R2_dy_0mu_0b_pred", 0, -1, "eo");
-  RatioPlots( dy_0b_0mu_MR, pred_MR_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_MR_0mu_0b_pred", "MR");
-  RatioPlots( dy_0b_0mu_R2, pred_R2_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_R2_0mu_0b_Pred", "RSQ");
+  //RatioPlots( dy_0b_0mu_MR, pred_MR_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_MR_0mu_0b_pred", "MR");
+  //RatioPlots( dy_0b_0mu_R2, pred_R2_dy_0b_0mu, "Z/#gamma^{*} MC 0-#mu BOX", "Z/#gamma^{*} Pred 0-#mu BOX", "PredPlots/dy_R2_0mu_0b_Pred", "RSQ");
   
   ////////////////////////////////////////
   /////////Z(nunu) 0 mu box///////////////
   ///////////////////////////////////////
-  
+  Z_0b_0mu_MR->Scale(1.0/Z_0b_0mu_MR->Integral());
+  Z_0b_0mu_R2->Scale(1.0/Z_0b_0mu_R2->Integral());
+
+  RatioPlots( Z_0b_0mu_MR, dy_0b_2mu_MR, "Z(#nu#nu) MC 0-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/Z_MR_0mu_to_DY2mu"+ex_s, "MR");
+  RatioPlots( Z_0b_0mu_R2, dy_0b_2mu_R2, "Z(#nu#nu) MC 0-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/Z_R2_0mu_to_DY2mu"+ex_s, "RSQ");
+
   TH2F* p_0b_0mu_Z = new TH2F( *p_0b_1mu_W );//Z(nunu) prediction for 0b 0mu 
   TH2F* r_0b_0mu_Z = new TH2F( *Z_0b_0mu );
   r_0b_0mu_Z->Divide(W_0b_1mu);
@@ -222,8 +252,19 @@ int main(){
   /////////////////////////////////
   //////////W 0mu box//////////////
   ////////////////////////////////
-  RatioPlots( W_0b_0mu_MR, W_0b_1mu_MR, "W MC 0-#mu BOX", "W MC 1-#mu BOX", "RatioPlots/W_MR_0mu_to_1mu", "MR");
-  RatioPlots( W_0b_0mu_R2, W_0b_1mu_R2, "W MC 0-#mu BOX" , "W MC 1-#mu BOX", "RatioPlots/W_R2_0mu_to_1mu", "RSQ");
+  
+  W_0b_0mu_MR->Scale(1.0/W_0b_0mu_MR->Integral());
+  W_0b_0mu_R2->Scale(1.0/W_0b_0mu_R2->Integral());
+  W_0b_1mu_MR->Scale(1.0/W_0b_1mu_MR->Integral());
+  W_0b_1mu_R2->Scale(1.0/W_0b_1mu_R2->Integral());
+  
+  
+  RatioPlots( W_0b_0mu_MR, W_0b_1mu_MR, "WJets MC 0-#mu BOX", "WJets MC 1-#mu BOX", "RatioPlots/W_MR_0mu_to_1mu"+ex_s, "MR");
+  RatioPlots( W_0b_0mu_R2, W_0b_1mu_R2, "WJets MC 0-#mu BOX" , "WJets MC 1-#mu BOX", "RatioPlots/W_R2_0mu_to_1mu"+ex_s, "RSQ");
+  
+  RatioPlots( Z_0b_0mu_MR, W_0b_1mu_MR, "Z(#nu#nu) MC 0-#mu BOX", "WJets MC 1-#mu BOX", "RatioPlots/Z_MR_0mu_to_W1mu"+ex_s, "MR");
+  RatioPlots( Z_0b_0mu_R2, W_0b_1mu_R2, "Z(#nu#nu) MC 0-#mu BOX", "WJets MC 1-#mu BOX", "RatioPlots/Z_R2_0mu_to_W1mu"+ex_s, "RSQ");
+
   TH2F* p_0b_0mu_W = new TH2F( *p_0b_1mu_W );//W prediction for 0b 0mu box
   TH2F* r_0b_0mu_W = new TH2F( *W_0b_0mu );
   r_0b_0mu_W->Divide(W_0b_1mu);
@@ -233,14 +274,14 @@ int main(){
   std::cout << "W Prediction 0b 0mu box: " << Integral << " error: " << error << std::endl;
   TH1F* pred_MR_W_0b_0mu = (TH1F*)p_0b_0mu_W->ProjectionX("MR_W_0mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_W_0b_0mu = (TH1F*)p_0b_0mu_W->ProjectionY("R2_W_0mu_0b_pred", 0, -1, "eo");
-  RatioPlots( W_0b_0mu_MR, pred_MR_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_MR_0mu_0b_pred", "MR");
-  RatioPlots( W_0b_0mu_R2, pred_R2_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_R2_0mu_0b_Pred", "RSQ");
+  //RatioPlots( W_0b_0mu_MR, pred_MR_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_MR_0mu_0b_pred", "MR");
+  //RatioPlots( W_0b_0mu_R2, pred_R2_W_0b_0mu, "W MC 0-#mu BOX", "W Pred 0-#mu BOX", "PredPlots/W_R2_0mu_0b_Pred", "RSQ");
 
   ////////////////////////////////////////////
   ////////Total Prediction 0-mu box///////////
   ////////////////////////////////////////////
   TH2F* bkg = new TH2F( *p_0b_0mu_W );//Adding W+jets prediction
-  bkg->Add(tt_0b_0mu);//Adding tt+jets from MC
+  bkg->Add(tt_0b_0mu, 1.0);//Adding tt+jets from MC
   bkg->Add(p_0b_0mu_dy);//Adding Z/gamma*(ll)+jets prediction
   bkg->Add(p_0b_0mu_Z);//Adding Z(nunu)+jets prediction
   Integral = bkg->IntegralAndError(1, 6, 1, 6, error, "");
@@ -251,8 +292,8 @@ int main(){
   
   TH1F* pred_MR_bkg_0b_0mu = (TH1F*)bkg->ProjectionX("MR_bkg_0mu_0b_pred", 0, -1, "eo");
   TH1F* pred_R2_bkg_0b_0mu = (TH1F*)bkg->ProjectionY("R2_bkg_0mu_0b_pred", 0, -1, "eo");
-  RatioPlotsBand( data_0b_0mu_MR, pred_MR_bkg_0b_0mu, "Data  0-#mu BOX", "Bkg Pred 0-#mu BOX", "PredPlots/Total_Bkg_MR_0mu_0b_pred", "MR");
-  RatioPlotsBand( data_0b_0mu_R2, pred_R2_bkg_0b_0mu, "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Total_Bkg_R2_0mu_0b_Pred", "RSQ");
+  RatioPlotsBand( data_0b_0mu_MR, pred_MR_bkg_0b_0mu, "Data  0-#mu BOX", "Bkg Pred 0-#mu BOX", "PredPlots/Total_Bkg_MR_0mu_0b_pred"+ex_s, "MR");
+  RatioPlotsBand( data_0b_0mu_R2, pred_R2_bkg_0b_0mu, "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Total_Bkg_R2_0mu_0b_Pred"+ex_s, "RSQ");
   
   //////////////////////////////////////////////////////////
   //////////////Flag Plot//////////////////////////////////
@@ -278,8 +319,8 @@ int main(){
   ///////////////////Closure Test///////////////////////////
   /////////////////////////////////////////////////////////
 
-  RatioPlots( W_0b_1mu_MR, dy_0b_2mu_MR, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_MR_1mu_to_2mu", "MR");
-  RatioPlots( W_0b_1mu_R2, dy_0b_2mu_R2, "Z/#gamma^{*} MC 1-#mu BOX", "Z/#gamma^{*} MC 2-#mu BOX", "RatioPlots/dy_R2_1mu_to_2mu", "RSQ");
+  RatioPlots( W_0b_1mu_MR, dy_0b_2mu_MR, "WJets MC 1-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/W_MR_1mu_to_DY2mu"+ex_s, "MR");
+  RatioPlots( W_0b_1mu_R2, dy_0b_2mu_R2, "WJets MC 1-#mu BOX", "Z/#gamma^{*}(ll) MC 2-#mu BOX", "RatioPlots/W_R2_1mu_to_DY2mu"+ex_s, "RSQ");
   
   Integral = data_0b_2mu->IntegralAndError(1, 6, 1, 6, error, "");
   std::cout << "======= 2mu box Data=======: " << Integral << " error: " << error << "============" << std::endl;
@@ -306,8 +347,8 @@ int main(){
   TH1F* mu1_BOX_Pred_MR = (TH1F*)mu1_BOX_Pred->ProjectionX("Pred_1mu_0b_MR",0,-1,"eo");
   TH1F* mu1_BOX_Pred_R2 = (TH1F*)mu1_BOX_Pred->ProjectionY("Pred_1mu_0b_R2",0,-1,"eo");
   
-  RatioPlotsBand( data_0b_1mu_MR, mu1_BOX_Pred_MR, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_MR_1mu_0b_pred_clo", "MR");
-  RatioPlotsBand( data_0b_1mu_R2, mu1_BOX_Pred_R2, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_R2_1mu_0b_Pred_clo", "RSQ");
+  RatioPlotsBand( data_0b_1mu_MR, mu1_BOX_Pred_MR, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_MR_1mu_0b_pred_clo"+ex_s, "MR");
+  RatioPlotsBand( data_0b_1mu_R2, mu1_BOX_Pred_R2, "Data 1-#mu BOX", "Pred 1-#mu BOX", "PredPlots/Closure_R2_1mu_0b_Pred_clo"+ex_s, "RSQ");
 
 
   double tt_mu[3], dy_mu[3], w_mu[3], z_mu[3];
@@ -367,7 +408,7 @@ int main(){
   //////////////////Output to LimitSetting/////////////
   ////////////////////////////////////////////////////
 
-  TFile *bkg_file_1DRsq = new TFile("Bkg_Pred_1D_Rsq_ttMC.root","RECREATE");
+  TFile *bkg_file_1DRsq = new TFile("Pred_Files/Bkg_Pred_1D_Rsq_ttMC_LO_RunAB.root","RECREATE");
   bkg_file_1DRsq->cd();
   pred_R2_bkg_0b_0mu->Write("bkg_rsq");
   data_0b_0mu_R2->Write("data_rsq");
@@ -376,69 +417,81 @@ int main(){
   TH1F *bkg_rsq_alphaDown = new TH1F("bkg_rsq_alphaDown","bkg_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
 
   //Individual RSQ Predictions
-  TH1F* p_w_1d_rsq = (TH1F*)p_0b_0mu_W->ProjectionX("w_rsq",0,-1,"eo");
-  TH1F* p_z_1d_rsq = (TH1F*)p_0b_0mu_Z->ProjectionX("z_rsq",0,-1,"eo");
-  TH1F* p_dy_1d_rsq = (TH1F*)p_0b_0mu_dy->ProjectionX("dy_rsq",0,-1,"eo");
-  TH1F* p_tt_1d_rsq = (TH1F*)tt_0b_0mu->ProjectionX("tt_rsq",0,-1,"eo");;
+  TH1F* p_w_1d_rsq = (TH1F*)p_0b_0mu_W->ProjectionY("w_rsq",0,-1,"eo");
+  TH1F* p_z_1d_rsq = (TH1F*)p_0b_0mu_Z->ProjectionY("z_rsq",0,-1,"eo");
+  TH1F* p_dy_1d_rsq = (TH1F*)p_0b_0mu_dy->ProjectionY("dy_rsq",0,-1,"eo");
+  TH1F* p_tt_1d_rsq = (TH1F*)tt_0b_0mu->ProjectionY("tt_rsq",0,-1,"eo");
   
   //Up and Down Histo for RSQ prediction
+  TH1F *w_rsq = new TH1F("w_rsq","w_rsq",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *w_rsq_alphaUp = new TH1F("w_rsq_alphaUp","w_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *w_rsq_alphaDown = new TH1F("w_rsq_alphaDown","w_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  
+  TH1F *z_rsq = new TH1F("z_rsq","z_rsq",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *z_rsq_alphaUp = new TH1F("z_rsq_alphaUp","z_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *z_rsq_alphaDown = new TH1F("z_rsq_alphaDown","z_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  
+  TH1F *dy_rsq = new TH1F("dy_rsq","dy_rsq",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *dy_rsq_alphaUp = new TH1F("dy_rsq_alphaUp","dy_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *dy_rsq_alphaDown = new TH1F("dy_rsq_alphaDown","dy_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
+  
+  TH1F *tt_rsq = new TH1F("tt_rsq","tt_rsq",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *tt_rsq_alphaUp = new TH1F("tt_rsq_alphaUp","tt_rsq_alphaUp",r2Bins, BaseDM::RSQ_BinArr);
   TH1F *tt_rsq_alphaDown = new TH1F("tt_rsq_alphaDown","tt_rsq_alphaDown",r2Bins, BaseDM::RSQ_BinArr);
   
   for(int z = 1; z <= r2Bins; z++){
     double binValue = pred_R2_bkg_0b_0mu->GetBinContent(z);
     double error = pred_R2_bkg_0b_0mu->GetBinError(z);
+    
     bkg_rsq_alphaUp->SetBinContent(z,binValue+error);
     bkg_rsq_alphaDown->SetBinContent(z,binValue-error);
     
     double bv_w = p_w_1d_rsq->GetBinContent(z);
     double be_w = p_w_1d_rsq->GetBinError(z);
+    w_rsq->SetBinContent(z,bv_w);
     w_rsq_alphaUp->SetBinContent(z,bv_w + be_w);
     w_rsq_alphaDown->SetBinContent(z,bv_w - be_w);
     
     double bv_z = p_z_1d_rsq->GetBinContent(z);
     double be_z = p_z_1d_rsq->GetBinError(z);
+    z_rsq->SetBinContent(z,bv_z);
     z_rsq_alphaUp->SetBinContent(z,bv_z + be_z);
     z_rsq_alphaDown->SetBinContent(z,bv_z - be_z);
     
     double bv_dy = p_dy_1d_rsq->GetBinContent(z);
     double be_dy = p_dy_1d_rsq->GetBinError(z);
+    dy_rsq->SetBinContent(z,bv_dy);
     dy_rsq_alphaUp->SetBinContent(z,bv_dy + be_dy);
     dy_rsq_alphaDown->SetBinContent(z,bv_dy - be_dy);
 
     double bv_tt = p_tt_1d_rsq->GetBinContent(z);
     double be_tt = p_tt_1d_rsq->GetBinError(z);
+    tt_rsq->SetBinContent(z,bv_tt);
     tt_rsq_alphaUp->SetBinContent(z,bv_tt + be_tt);
     tt_rsq_alphaDown->SetBinContent(z,bv_tt - be_tt);
 
   }
   
-  bkg_rsq_alphaUp->Write("bkg_rsq_alphaUp");
-  bkg_rsq_alphaDown->Write("bkg_rsq_alphaDown");
+  bkg_rsq_alphaUp->Write("bkg_rsq_epsilonUp");
+  bkg_rsq_alphaDown->Write("bkg_rsq_epsilonDown");
   
-  p_w_1d_rsq->Write();
+  w_rsq->Write();
   w_rsq_alphaUp->Write("w_rsq_zetaUp");
   w_rsq_alphaDown->Write("w_rsq_zetaDown");
   
-  p_z_1d_rsq->Write();
+  z_rsq->Write();
   z_rsq_alphaUp->Write("z_rsq_deltaUp");
   z_rsq_alphaDown->Write("z_rsq_deltaDown");
   
-  p_dy_1d_rsq->Write();
+  dy_rsq->Write();
   dy_rsq_alphaUp->Write("dy_rsq_gammaUp");
   dy_rsq_alphaDown->Write("dy_rsq_gammaDown");
   
-  p_tt_1d_rsq->Write();
+  tt_rsq->Write();
   tt_rsq_alphaUp->Write("tt_rsq_betaUp");
   tt_rsq_alphaDown->Write("tt_rsq_betaDown");
   
-  TFile *bkg_file_2D = new TFile("Pred_Files/BkgPred_ttMC_NNLO.root","RECREATE");
+  TFile *bkg_file_2D = new TFile("Pred_Files/BkgPred_ttMC_LO_RunAB.root","RECREATE");
 
   bkg_file_2D->cd();
   bkg->Write("BkgPred_2d");

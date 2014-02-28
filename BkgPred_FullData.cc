@@ -14,8 +14,8 @@
 //const float BaseDM::RSQ_BinArr[] = {0.5, 0.7, 0.9, 1.1, 2.50};
 //const float BaseDM::MR_BinArr[] = {200., 466., 732., 1000., 3500.};
 
-const float BaseDM::RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};                                                     
-const float BaseDM::MR_BinArr[] = {200., 400., 600., 800., 3500.};   
+const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};
+const float BaseDM::MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};  
 
 int main(){
   gROOT->Reset();
