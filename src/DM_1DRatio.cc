@@ -163,15 +163,18 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   }
   RATIO->GetYaxis()->SetRangeUser(.0, 2.05);
   RATIO2->GetYaxis()->SetRangeUser(.0, 2.05);
+  //RATIO->GetYaxis()->SetRangeUser(.7, 1.3);
+  //RATIO2->GetYaxis()->SetRangeUser(.7, 1.3);
+  
  
   RATIO->Sumw2();
   RATIO2->Sumw2();
   h1->SetLineColor(1);//data
-  h1->SetMarkerSize(.7);
+  h1->SetMarkerSize(.3);
   h1->SetMarkerColor(1);
   h1->SetMarkerStyle(20);
   h1->SetFillColor(1);
-  h1->SetLineWidth(2);
+  h1->SetLineWidth(1.7);
   
   h2->SetLineColor(kGreen-10);
   h2->SetFillColor(kGreen-10);
@@ -193,7 +196,7 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   pad1->SetBottomMargin(0);
   pad1->Draw();
   pad1->cd();
-  //h1->GetYaxis()->SetRangeUser(.0, 10000);
+  h1->GetYaxis()->SetRangeUser(80.5, 100000);
   h1->Draw("pe");
   h2->DrawCopy("E2same");
   h2clone->DrawCopy("hist same");
@@ -240,7 +243,7 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
   RATIO->SetXTitle( label );
   RATIO->SetYTitle("Ratio");
   RATIO->SetLineColor(1);
-  RATIO->SetMarkerSize(.6);
+  RATIO->SetMarkerSize(.3);
   RATIO->SetMarkerColor(1);
   RATIO->SetMarkerStyle(20);
   RATIO->SetFillColor(kGreen-10);

@@ -16,23 +16,18 @@ int main(){
   
   gROOT->Reset();
   
-  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};5x7                                                     
-  //const float MR_BinArr[] = {200., 300., 400., 500, 600., 700., 800., 3500.};
-  
-  //const float RSQ_BinArr[] = {0.5, 0.65, 0.8, 1.0, 2.50};4x4                                                     
-  //const float MR_BinArr[] = {200., 400., 600., 800., 3500.};
-  
-  const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.0, 2.50};//5x5 original                                                  
-  const float MR_BinArr[] = {200., 300., 400., 600., 800., 3500.};
-  
-  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};//5x5 v2                                                     
+  //const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 1.1, 2.50};//5x5 original                                                  
   //const float MR_BinArr[] = {200., 300., 400., 600., 900., 3500.};
+
+  const float RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85, 2.50};//4x4                                                  
+  const float MR_BinArr[] = {200., 300., 400., 600., 3500.};
+  
   TFile* f_mu = new TFile("/Users/cmorgoth/Dropbox/DM/hlt_eff_DoubleMuonPD_Final.root");
   TEfficiency* mu_eff = (TEfficiency*)f_mu->Get("Eff2d");
   TFile* f_ele = new TFile("/Users/cmorgoth/Dropbox/DM/hlt_eff_SignleElePD_Final.root");
   TEfficiency* ele_eff = (TEfficiency*)f_ele->Get("Eff2d");
   
-  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO_RunAB.root");
+  TFile* f = new TFile("Pred_Files/BkgPred_ttMC_LO_RunAB_2sys.root");
   //TFile* f = new TFile("Pred_Files/BkgPred_FullData_BtagCorr.root");
 
   TH2F* Pred2D = (TH2F*)f->Get("BkgPred_2d");
@@ -91,8 +86,8 @@ int main(){
   c->SaveAs("pred_text_DataMC_LO_Dphi_FullData_BtagCorr5x5_2sigma_InvMassCut.png");
  
   
-  int mrbins = 5;
-  int r2bins = 5;
+  int mrbins = 4;
+  int r2bins = 4;
   TH1F* h[mrbins*r2bins]; 
   double p_val[mrbins*r2bins], n_sigma[mrbins*r2bins];
   int ctr = 0;
@@ -116,7 +111,7 @@ int main(){
       TRandom3 r2(0);
       for(int t = 0; t < n_toys; t++){
 	//double Lambda = r1.Gaus(mean, sigma+mean*trigg_err);
-	double Lambda = r1.Gaus(mean, 2*sigma);
+	double Lambda = r1.Gaus(mean, sigma);
 	double pois = r2.Poisson(Lambda);
 	h[(j-1)+(i-1)*r2bins]->Fill(pois);
       }

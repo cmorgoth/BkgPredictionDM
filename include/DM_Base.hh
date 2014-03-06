@@ -25,8 +25,11 @@ class BaseDM{
   
 public:
   
-  static const int MR_Bins = 5;
-  static const int RSQ_Bins = 5;
+  //static const int MR_Bins = 5;
+  //static const int RSQ_Bins = 5;
+  static const int MR_Bins = 4;
+  static const int RSQ_Bins = 4;
+  
 
   static const float Lumi = 5.;//fb^-1
     
