@@ -14,7 +14,8 @@ CPPFLAGS += -g
 TARGET = BkgPred
 #TARGET = Pred2D
 
-SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
+SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics_MR_Categories.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
+#SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY_Hybrid.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
