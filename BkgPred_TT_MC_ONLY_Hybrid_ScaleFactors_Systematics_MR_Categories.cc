@@ -22,10 +22,10 @@ const float BaseDM::MR_BinArr[] = {200., 300., 400., 600.,  3500.};
 
 //MR Categories
 const int r2B[4] = {11, 6, 6, 4};
-float c1B[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.9, 0.95, 1.0, 2.5};
-float c2B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 2.5};
-float c3B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 2.5};
-float c4B[] = {0.50, 0.60, 0.70, .950, 2.50};
+float c1B[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.9, 0.95, 1.0, 1.2};
+float c2B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
+float c3B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
+float c4B[] = {0.50, 0.60, 0.70, .950, 1.2};
 
 std::vector<float*> v;
 
@@ -47,7 +47,7 @@ int main(){
 
   set_plot_style();
   TCanvas* cc = new TCanvas("cc", "cc", 640, 640);
-  TFile* F = new TFile("FinalROOTFiles/MRcategories.root");
+  TFile* F = new TFile("FinalROOTFiles/MRcategoriesV2.root");
   
   v.push_back(c1B);
   v.push_back(c2B);
@@ -208,18 +208,80 @@ int main(){
     p_0b_0mu[i]->Add(tt[i]);//Add tt MC
   }
   
- 
-  TFile* f1 = new TFile("FinalROOTFiles/MR_Cat_Pred.root","RECREATE");
+
+  /////////////////////////////////////////////
+  //////////Include Systematics////////////////
+  /////////////////////////////////////////////
+
+  TH1F* sys[4];
+  for(int i = 0; i < 4; i++){
+    TString s(Form("sys_cat%d",i+1)); 
+    sys[i] = new TH1F(s,s, r2B[i], v.at(i));
+  }
+  //Get Systematics
+  for(int i = 0; i < 4; i++){
+    for(int j = 1; j <= p_0b_1mu_c[i]->GetNbinsX(); j++){
+      double diff = fabs(p_0b_1mu_c[i]->GetBinContent(j) - data[i+4]->GetBinContent(j))/p_0b_1mu_c[i]->GetBinContent(j);
+      sys[i]->SetBinContent(j, diff);
+    }
+  }
+    
+  //Apply Systematics
+  TH1F* p_0b_1mu_c_sys[4];
+  TH1F* p_0b_0mu_sys[4];
+  TH1F* p_0b_0mu_dy_sys[4];
+  TH1F* p_0b_0mu_z_sys[4];
+  TH1F* p_0b_0mu_w_sys[4];
+  TH1F* p_0b_0mu_tt_sys[4];
+  for(int i = 0; i < 4; i++){
+    p_0b_1mu_c_sys[i] = new TH1F(*p_0b_1mu_c[i]);
+    p_0b_0mu_sys[i] = new TH1F(*p_0b_0mu[i]);  
+    p_0b_0mu_dy_sys[i] = new TH1F(*p_0b_0mu_dy[i]);
+    p_0b_0mu_z_sys[i] = new TH1F(*p_0b_0mu_z[i]);
+    p_0b_0mu_w_sys[i] = new TH1F(*p_0b_0mu_w[i]);
+    p_0b_0mu_tt_sys[i] = new TH1F(*tt[i]);
+    for(int j = 1; j <= p_0b_1mu_c[i]->GetNbinsX(); j++){
+      double err = sqrt(pow(p_0b_1mu_c_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
+      p_0b_1mu_c_sys[i]->SetBinError(j, err);
+      err = sqrt(pow(p_0b_0mu_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_sys[i]->GetBinError(j),2));
+      p_0b_0mu_sys[i]->SetBinError(j, err);
+      //Individual Bkg
+      err = sqrt(pow(p_0b_0mu_dy_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_dy_sys[i]->GetBinError(j),2));
+      p_0b_0mu_dy_sys[i]->SetBinError(j, err);
+      err = sqrt(pow(p_0b_0mu_z_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_z_sys[i]->GetBinError(j),2));
+      p_0b_0mu_z_sys[i]->SetBinError(j, err);
+      err = sqrt(pow(p_0b_0mu_w_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_w_sys[i]->GetBinError(j),2));
+      p_0b_0mu_w_sys[i]->SetBinError(j, err);
+      err = sqrt(pow(p_0b_0mu_tt_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_tt_sys[i]->GetBinError(j),2));
+      p_0b_0mu_tt_sys[i]->SetBinError(j, err);
+    }
+  }
+  
+
+  TFile* f1 = new TFile("Pred_Files/MR_Cat_PredV2.root","RECREATE");
   TString n, n1, ex_s;
   for(int i = 0; i < 4; i++){
     n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
     n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
     ex_s = TString(Form("cat%d",i+1));
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred"+ex_s, "RSQ", r2B[i], v.at(i));
-    p_0b_1mu_c[i]->Write(n);
-    p_0b_0mu[i]->Write(n1);
-    data[4+i]->Write();
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
+    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i));
+    RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i));
+    //p_0b_1mu_c[i]->Write(n);
+    //p_0b_1mu_c_sys[i]->Write(n+"_sys");
+    //p_0b_0mu[i]->Write(n1);
+    p_0b_0mu_sys[i]->Write(n1+"_sys");
+    n = TString(Form("cat%d_dy_Pred",i+1));
+    p_0b_0mu_dy_sys[i]->Write(n);
+    n = TString(Form("cat%d_z_Pred",i+1));
+    p_0b_0mu_z_sys[i]->Write(n);
+    n = TString(Form("cat%d_w_Pred",i+1));
+    p_0b_0mu_w_sys[i]->Write(n);
+    n = TString(Form("cat%d_tt_Pred",i+1));
+    p_0b_0mu_tt_sys[i]->Write(n);
+    
+    //data[4+i]->Write();
     data[i]->Write();
 
     //data[8+i]->Write();

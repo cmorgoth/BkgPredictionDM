@@ -129,9 +129,9 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
     RATIO = new TH1F("RATIO", fname + "_" + type , nbins, bins);
     RATIO2 = new TH1F("RATIO2", fname + "_" + type , nbins, bins);
     label = "R^{2}";
-    h1->GetXaxis()->SetRangeUser(0.5, 2.5);
-    h2->GetXaxis()->SetRangeUser(0.5, 2.5);
-    RATIO->GetXaxis()->SetRangeUser(0.5, 2.5);
+    h1->GetXaxis()->SetRangeUser(0.5, 1.2);
+    h2->GetXaxis()->SetRangeUser(0.5, 1.2);
+    RATIO->GetXaxis()->SetRangeUser(0.5, 1.2);
   }else{
     delete RATIO;
     delete RATIO2;
