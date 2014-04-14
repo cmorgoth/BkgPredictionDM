@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <iomanip>
+
 #include "TROOT.h"
 #include "TH1F.h"
 #include "TFile.h"
@@ -87,7 +89,18 @@ int main(){
     }
   }
   
-      
+  
+  TH1F* t_MC[12];
+   for(int i = 0; i < 3; i++){
+    for(int j = 1; j <= 4; j++){
+      t_MC[4*i+j-1] = new TH1F(*dy[4*i+j-1]);
+      t_MC[4*i+j-1]->Add(z[4*i+j-1]);
+      t_MC[4*i+j-1]->Add(w[4*i+j-1]);
+      t_MC[4*i+j-1]->Add(tt[4*i+j-1]);
+    }
+   }
+  
+
   /////////////////////////////////////////////////////////
   /////////////////DY 2mu Prediction//////////////////////
   ////////////////////////////////////////////////////////
@@ -208,6 +221,15 @@ int main(){
     p_0b_0mu[i]->Add(tt[i]);//Add tt MC
   }
   
+  //Print Out Prediction in different cat
+   for(int i = 0; i < 4; i++){
+     std::cout << "==== Cat " << i+1 << " ====" << std::endl;
+     std::cout << "W: " << p_0b_0mu_w[i]->Integral() << std::endl;
+     std::cout << "Z(nunu): " << p_0b_0mu_z[i]->Integral() << std::endl;
+     std::cout << "Z(ll): " << p_0b_0mu_dy[i]->Integral() << std::endl;
+     std::cout << "tt: "  << tt[i]->Integral() << std::endl;
+     std::cout << "TOTAL: "  << p_0b_0mu[i]->Integral() << std::endl;
+  }
 
   /////////////////////////////////////////////
   //////////Include Systematics////////////////
@@ -235,7 +257,7 @@ int main(){
   TH1F* p_0b_0mu_tt_sys[4];
   for(int i = 0; i < 4; i++){
     p_0b_1mu_c_sys[i] = new TH1F(*p_0b_1mu_c[i]);
-    p_0b_0mu_sys[i] = new TH1F(*p_0b_0mu[i]);  
+    
     p_0b_0mu_dy_sys[i] = new TH1F(*p_0b_0mu_dy[i]);
     p_0b_0mu_z_sys[i] = new TH1F(*p_0b_0mu_z[i]);
     p_0b_0mu_w_sys[i] = new TH1F(*p_0b_0mu_w[i]);
@@ -243,8 +265,10 @@ int main(){
     for(int j = 1; j <= p_0b_1mu_c[i]->GetNbinsX(); j++){
       double err = sqrt(pow(p_0b_1mu_c_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
       p_0b_1mu_c_sys[i]->SetBinError(j, err);
-      err = sqrt(pow(p_0b_0mu_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_sys[i]->GetBinError(j),2));
-      p_0b_0mu_sys[i]->SetBinError(j, err);
+      
+      //err = sqrt(pow(p_0b_0mu_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_sys[i]->GetBinError(j),2));
+      //p_0b_0mu_sys[i]->SetBinError(j, err);
+      
       //Individual Bkg
       err = sqrt(pow(p_0b_0mu_dy_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_dy_sys[i]->GetBinError(j),2));
       p_0b_0mu_dy_sys[i]->SetBinError(j, err);
@@ -252,47 +276,82 @@ int main(){
       p_0b_0mu_z_sys[i]->SetBinError(j, err);
       err = sqrt(pow(p_0b_0mu_w_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_w_sys[i]->GetBinError(j),2));
       p_0b_0mu_w_sys[i]->SetBinError(j, err);
-      err = sqrt(pow(p_0b_0mu_tt_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_tt_sys[i]->GetBinError(j),2));
+      //err = sqrt(pow(p_0b_0mu_tt_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_tt_sys[i]->GetBinError(j),2));
+      err = 2*p_0b_0mu_tt_sys[i]->GetBinError(j);
       p_0b_0mu_tt_sys[i]->SetBinError(j, err);
     }
+    p_0b_0mu_sys[i] = new TH1F(*p_0b_0mu_dy_sys[i]);
+    p_0b_0mu_sys[i]->Add(p_0b_0mu_z_sys[i]);
+    p_0b_0mu_sys[i]->Add(p_0b_0mu_w_sys[i]);
+    p_0b_0mu_sys[i]->Add(p_0b_0mu_tt_sys[i]);
   }
   
-
-  TFile* f1 = new TFile("Pred_Files/MR_Cat_PredV2.root","RECREATE");
-  TString n, n1, ex_s;
+  //Print Out Prediction in different cat after systematics
+  double Nerr[7] = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
+  double Nbkg[7] = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
+  TString catN[4] = {"VL","L","H","VH"};
+  std::cout << "==== 0-mu ====" << std::endl;
   for(int i = 0; i < 4; i++){
-    n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
-    n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
-    ex_s = TString(Form("cat%d",i+1));
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    //p_0b_1mu_c[i]->Write(n);
-    //p_0b_1mu_c_sys[i]->Write(n+"_sys");
-    //p_0b_0mu[i]->Write(n1);
-    p_0b_0mu_sys[i]->Write(n1+"_sys");
-    n = TString(Form("cat%d_dy_Pred",i+1));
-    p_0b_0mu_dy_sys[i]->Write(n);
-    n = TString(Form("cat%d_z_Pred",i+1));
-    p_0b_0mu_z_sys[i]->Write(n);
-    n = TString(Form("cat%d_w_Pred",i+1));
-    p_0b_0mu_w_sys[i]->Write(n);
-    n = TString(Form("cat%d_tt_Pred",i+1));
-    p_0b_0mu_tt_sys[i]->Write(n);
-    
-    //data[4+i]->Write();
-    data[i]->Write();
+    //std::cout << "==== Cat " << i+1 << " ====" << std::endl;
+    Nbkg[0] = z[i]->IntegralAndError(1,z[i]->GetNbinsX(),Nerr[0],"");
+    Nbkg[1] = w[i]->IntegralAndError(1,w[i]->GetNbinsX(),Nerr[1],"");
+    Nbkg[2] = dy[i]->IntegralAndError(1,dy[i]->GetNbinsX(),Nerr[2],"");
+    Nbkg[3] = tt[i]->IntegralAndError(1,tt[i]->GetNbinsX(),Nerr[3],"");
+    Nbkg[4] = t_MC[i]->IntegralAndError(1,t_MC[i]->GetNbinsX(),Nerr[4],"");
+    Nbkg[5] = p_0b_0mu_sys[i]->IntegralAndError(1,p_0b_0mu_sys[i]->GetNbinsX(),Nerr[5],"");//0-mu prediction
+    Nbkg[6] = data[i]->IntegralAndError(1,data[i]->GetNbinsX(),Nerr[6],"");
 
-    //data[8+i]->Write();
-    //w[4+i]->Write();
-    //dy[8+i]->Write();
-    //dy[4+i]->Write();
-    //tt[8+i]->Write();
-    //tt[4+i]->Write();
+    std::cout << catN[i] << " & " << Nbkg[0] << "\\pm" << Nerr[0] <<
+      " & " << Nbkg[1] << "\\pm" << Nerr[1] <<
+      " & " << Nbkg[2] << "\\pm" << Nerr[2] <<
+      " & " << Nbkg[3] << "\\pm" << Nerr[3] <<
+      " & " << Nbkg[4] << "\\pm" << Nerr[4] <<
+      " & " << Nbkg[5] << "\\pm" << Nerr[5] <<
+      " & " << Nbkg[6] << " \\\\"<<std::endl;
+    
   }
-  f1->Close();
- 
+
+  std::cout << "==== 1-mu ====" << std::endl;
+  for(int i = 0; i < 4; i++){
+    //std::cout << "==== Cat " << i+1 << " ====" << std::endl;
+    Nbkg[0] = z[i+4]->IntegralAndError(1,z[i+4]->GetNbinsX(),Nerr[0],"");
+    Nbkg[1] = w[i+4]->IntegralAndError(1,w[i+4]->GetNbinsX(),Nerr[1],"");
+    Nbkg[2] = dy[i+4]->IntegralAndError(1,dy[i+4]->GetNbinsX(),Nerr[2],"");
+    Nbkg[3] = tt[i+4]->IntegralAndError(1,tt[i+4]->GetNbinsX(),Nerr[3],"");
+    Nbkg[4] = t_MC[i+4]->IntegralAndError(1,t_MC[i+4]->GetNbinsX(),Nerr[4],"");
+    Nbkg[5] = p_0b_1mu_c_sys[i]->IntegralAndError(1,p_0b_1mu_c_sys[i]->GetNbinsX(),Nerr[5],"");//0-mu prediction
+    Nbkg[6] = data[i+4]->IntegralAndError(1,data[i+4]->GetNbinsX(),Nerr[6],"");
+
+    std::cout << catN[i] << " & " << Nbkg[0] << "\\pm" << Nerr[0] <<
+      " & " << Nbkg[1] << "\\pm" << Nerr[1] <<
+      " & " << Nbkg[2] << "\\pm" << Nerr[2] <<
+      " & " << Nbkg[3] << "\\pm" << Nerr[3] <<
+      " & " << Nbkg[4] << "\\pm" << Nerr[4] <<
+      " & " << Nbkg[5] << "\\pm" << Nerr[5] <<
+      " & " << Nbkg[6] << " \\\\"<<std::endl;
+    
+  }
+
+  std::cout << "==== 2-mu ====" << std::endl;
+  for(int i = 0; i < 4; i++){
+    //std::cout << "==== Cat " << i+1 << " ====" << std::endl;
+    Nbkg[0] = z[i+8]->IntegralAndError(1,z[i+8]->GetNbinsX(),Nerr[0],"");
+    Nbkg[1] = w[i+8]->IntegralAndError(1,w[i+8]->GetNbinsX(),Nerr[1],"");
+    Nbkg[2] = dy[i+8]->IntegralAndError(1,dy[i+8]->GetNbinsX(),Nerr[2],"");
+    Nbkg[3] = tt[i+8]->IntegralAndError(1,tt[i+8]->GetNbinsX(),Nerr[3],"");
+    Nbkg[4] = t_MC[i+8]->IntegralAndError(1,t_MC[i+8]->GetNbinsX(),Nerr[4],"");
+    //Nbkg[5] = p_0b_1mu_c_sys[i]->IntegralAndError(1,p_0b_1mu_c_sys[i]->GetNbinsX(),Nerr[5],"");//0-mu prediction
+    Nbkg[6] = data[i+8]->IntegralAndError(1,data[i+8]->GetNbinsX(),Nerr[6],"");
+
+    std::cout << catN[i] << " & " << Nbkg[0] << "\\pm" << Nerr[0] <<
+      " & " << Nbkg[1] << "\\pm" << Nerr[1] <<
+      " & " << Nbkg[2] << "\\pm" << Nerr[2] <<
+      " & " << Nbkg[3] << "\\pm" << Nerr[3] <<
+      " & " << Nbkg[4] << "\\pm" << Nerr[4] <<
+      " & " << "--" << "\\pm" << "--" <<
+      " & " << Nbkg[6] << " \\\\"<<std::endl; 
+  }
+  
   
   return 0;
 

@@ -11,23 +11,49 @@ LDFLAGS := $(shell root-config --glibs) $(STDLIBDIR)
 
 CPPFLAGS += -g
 
-TARGET = BkgPred
-#TARGET = Pred2D
+TARGET1 = PrintYields
+TARGET2 = BkgPred_ttClosure_Cat
+TARGET3 = BkgPred_Cat
+TARGET4 = Pred2D
 
-SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics_MR_Categories.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
+SRC1 = Main/PrintBkgContributions.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
+
+SRC2 = Main/BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics_MR_Categories_TTCLOSURE.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
+SRC3 = Main/BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics_MR_Categories.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors_Systematics.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY_Hybrid.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY_Hybrid_ScaleFactors.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
 #SRC = BkgPred_TT_MC_ONLY.cc src/DM_1DRatio.cc src/DM_2DRatio.cc src/DM_Base.cc
-#SRC = Prediction_2d.cc
+SRC4 = Main/Prediction_2d.cc
 
 
-OBJ = $(SRC:.cc=.o)
+OBJ1 = $(SRC1:.cc=.o)
+OBJ2 = $(SRC2:.cc=.o)
+OBJ3 = $(SRC3:.cc=.o)
+OBJ4 = $(SRC4:.cc=.o)
 
-all : $(TARGET)
+all : $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4)
 
-$(TARGET) : $(OBJ)
-	$(LD) $(CPPFLAGS) -o $(TARGET) $(OBJ) $(LDFLAGS)
+$(TARGET1) : $(OBJ1)
+	$(LD) $(CPPFLAGS) -o $(TARGET1) $(OBJ1) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
+$(TARGET2) : $(OBJ2)
+	$(LD) $(CPPFLAGS) -o $(TARGET2) $(OBJ2) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
+$(TARGET3) : $(OBJ3)
+	$(LD) $(CPPFLAGS) -o $(TARGET3) $(OBJ3) $(LDFLAGS)
+	@echo $@
+	@echo $<
+	@echo $^
+
+$(TARGET4) : $(OBJ4)
+	$(LD) $(CPPFLAGS) -o $(TARGET4) $(OBJ4) $(LDFLAGS)
 	@echo $@
 	@echo $<
 	@echo $^
@@ -37,5 +63,5 @@ $(TARGET) : $(OBJ)
 	@echo $@	
 	@echo $<
 clean :
-	rm -f *.o src/*.o $(TARGET) *~
+	rm -f *.o src/*.o $(TARGET1) $(TARGET2) $(TARGET3) $(TARGET4)*~
 

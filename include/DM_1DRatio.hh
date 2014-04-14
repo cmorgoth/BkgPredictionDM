@@ -15,6 +15,6 @@
 int RatioPlots( TH1F*, TH1F*, TString, TString, TString, TString );
 int RatioPlotsBand( TH1F*, TH1F*, TString, TString, TString, TString );
 int RatioPlotsBandV2( TH1F*, TH1F*, TString, TString, TString, TString, int nbins, float* bins);
-int RatioPlotsV2( THStack*, TH1F*, TH1F*, TString, TString, TString, TString, TLegend* );
+int RatioPlotsV2(THStack*, TH1F*, TH1F*, TString, TString, TString, TString, int, float*, TLegend*);
 
 #endif

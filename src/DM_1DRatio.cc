@@ -196,7 +196,11 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
   pad1->SetBottomMargin(0);
   pad1->Draw();
   pad1->cd();
-  h1->GetYaxis()->SetRangeUser(0.2*h1->GetBinContent(nbins), 2*h1->GetBinContent(1));
+  if(h1->GetBinContent(nbins) != 0.0){
+    h1->GetYaxis()->SetRangeUser(0.2*h1->GetBinContent(nbins), 2*h1->GetBinContent(1));
+  }else{
+    h1->GetYaxis()->SetRangeUser(0.2, 2*h1->GetBinContent(1));
+  }
   h1->Draw("pe");
   h2->DrawCopy("E2same");
   h2clone->DrawCopy("hist same");
@@ -276,8 +280,11 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
   RATIO->Draw("pesame");
   
   C->cd();
+  C->SaveAs(fname + ".C");
+  C->SaveAs(fname + ".root");
   C->SaveAs(fname + ".pdf");
   C->SaveAs(fname + ".png");
+  
   
   delete leg;
   delete C;
@@ -468,13 +475,14 @@ int RatioPlotsBand(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name
 
 
 
-int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "h2Name", TString fname = "default_name", TString type = "defaultType", TLegend* le = NULL){
+int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "h2Name", TString fname = "default_name", TString type = "defaultType", int nbins = 0, float* bins = NULL, TLegend* le = NULL){
 
   TCanvas* C = new TCanvas("C", "C      ", 400, 500);
   C->cd();
 
   TH1F*  RATIO;
   TString label;
+  std::cout << "debug 0" << std::endl;
   if(type == "MR"){
     RATIO = new TH1F("RATIO", fname + "_" + type , BaseDM::MR_Bins, BaseDM::MR_BinArr);
     label = "M_{R}";
@@ -484,13 +492,15 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
     RATIO->GetYaxis()->SetRangeUser(.0, 2.0);
     s->SetMaximum(100000.);
   }else if(type == "RSQ" ){
-    RATIO = new TH1F("RATIO", fname + "_" + type , BaseDM::RSQ_Bins, BaseDM::RSQ_BinArr);
+    std::cout << "debug 1" << std::endl;
+    RATIO = new TH1F("RATIO", fname + "_" + type , nbins, bins);
+    //RATIO2 = new TH1F("RATIO2", fname + "_" + type , nbins, bins);
     label = "R^{2}";
-    h1->GetXaxis()->SetRangeUser(0.5, 2.50);
-    h2->GetXaxis()->SetRangeUser(0.5, 2.50);
-    RATIO->GetXaxis()->SetRangeUser(0.5, 2.50);
-    RATIO->GetYaxis()->SetRangeUser(.0, 2.0);
-    s->GetYaxis()->SetRangeUser(.0, 5000);
+    std::cout << "debug 2" << std::endl;
+    h1->GetXaxis()->SetRangeUser(0.5, 1.2);
+    h2->GetXaxis()->SetRangeUser(0.5, 1.2);
+    RATIO->GetXaxis()->SetRangeUser(0.5, 1.2);
+    std::cout << "debug 3" << std::endl;
   }else if(type == "MET"){
     RATIO = new TH1F("RATIO", fname + "_" + type , 50, 0, 1000);
     label = "#slash{E}_{T}  GeV";
@@ -506,18 +516,27 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
     return -1;
   }
   
-  //std::cout << "=====================Dividing Histograms=====================" << std::endl;
-  RATIO->Divide(h2, h1, 1, 1, "");
+  std::cout << "=====================Dividing Histograms=====================" << std::endl;
+  RATIO->Divide(h1, h2, 1, 1, "");
   RATIO->GetYaxis()->SetRangeUser(.0, 2.05);
-  h2->SetMarkerSize(.7);
-  h2->SetStats(0);
-  
+  h1->SetMarkerSize(.7);
+  h1->SetStats(0);
   s->SetMinimum(1.);
-  
   TPad *pad1 = new TPad("pad1","pad1",0,0.25,1,1);
   pad1->SetBottomMargin(0.0);
   pad1->Draw();
   pad1->cd();
+  if(h1->GetBinContent(nbins) != 0.0){
+    s->SetMinimum(0.2*h1->GetBinContent(nbins));
+    s->SetMaximum(4*h1->GetBinContent(1));
+  }else if(h1->GetBinContent(1) != 0.0){
+    s->SetMinimum(0.2);
+    s->SetMaximum(4*h1->GetBinContent(1));
+  }else{
+    s->SetMinimum(0.2);
+    s->SetMaximum(10.0);
+  }
+  s->SetTitle("");
   s->Draw();
   if(type == "MET"){
     s->GetYaxis()->SetTitle("Events/20 GeV");
@@ -526,8 +545,8 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
   }
   s->GetYaxis()->SetTitleOffset(1.25);
   gPad->Modified();
-  h2->SetStats(0);
-  h2->Draw("same");
+  h1->SetStats(0);
+  h1->Draw("same");
   C->cd();
   
   le->SetFillColor(0);
@@ -537,13 +556,14 @@ int RatioPlotsV2(THStack* s, TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TStr
   pad1->SetLogy();
   C->Update();
   
+  std::cout << "debug 5" << std::endl;
   TLatex *t = new TLatex();
   t->SetNDC();
   t->SetTextAlign(22);
   t->SetTextSize(0.03);
-  t->DrawLatex(0.25,0.87,"CMS Preliminary");
-  t->DrawLatex(0.25,0.83,"#sqrt{s} = 8 TeV");
-  t->DrawLatex(0.25,0.77,"#int L dt = 19.6 fb^{-1}");
+  t->DrawLatex(0.22,0.95,"CMS Preliminary:");
+  t->DrawLatex(0.42,0.95,"#sqrt{s} = 8 TeV,");
+  t->DrawLatex(0.62,0.95,"#int L dt = 18.5 fb^{-1}");
   
   TPad *pad2 = new TPad("pad2","pad2",0,0.0,1,0.25);
   pad2->SetTopMargin(0.008);
