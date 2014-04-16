@@ -108,7 +108,7 @@ int RatioPlots(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "
   
 };
 
-int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "h2Name", TString fname = "default_name", TString type = "defaultType", int nbins = 0, float* bins = NULL){
+int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Name = "h2Name", TString fname = "default_name", TString type = "defaultType", int nbins = 0, float* bins = NULL, int color = 0){
 	
   TCanvas* C = new TCanvas("C", "C	", 400, 500);
   C->cd();  
@@ -161,8 +161,8 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
       std::cout << "BinContent: " << h1->GetBinContent(i,j) << std::endl;
     }
   }
-  RATIO->GetYaxis()->SetRangeUser(.0, 2.05);
-  RATIO2->GetYaxis()->SetRangeUser(.0, 2.05);
+  RATIO->GetYaxis()->SetRangeUser(.0, 3.05);
+  RATIO2->GetYaxis()->SetRangeUser(.0, 3.05);
   //RATIO->GetYaxis()->SetRangeUser(.7, 1.3);
   //RATIO2->GetYaxis()->SetRangeUser(.7, 1.3);
   
@@ -175,29 +175,46 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
   h1->SetMarkerStyle(20);
   h1->SetFillColor(1);
   h1->SetLineWidth(1.7);
-  
-  h2->SetLineColor(kGreen-10);
-  h2->SetFillColor(kGreen-10);
   h2->SetLineWidth(2);
   TH1F* h2clone = (TH1F*)h2->Clone("h2clone");
   h2clone->SetFillColor(0);
-  h2clone->SetLineColor(kGreen);
-  
+  switch(color){
+  case 0:
+    h2->SetLineColor(kGreen-10);
+    h2->SetFillColor(kGreen-10);
+    h2clone->SetLineColor(kGreen);
+    break;
+  case 1:
+    h2->SetLineColor(kRed-10);
+    h2->SetFillColor(kRed-10);
+    h2clone->SetLineColor(kRed);
+    break;
+  case 2:
+    h2->SetLineColor(kBlue-10);
+    h2->SetFillColor(kBlue-10);
+    h2clone->SetLineColor(kBlue);
+    break;
+  default:
+    std::cout << "---Default---" << std::endl;
+    break;
+  }
   h1->SetStats(0);
   h1->SetTitle("");
   h2->SetTitle("");
   h2->SetStats(0);
   h2->SetXTitle( type );
   h1->SetXTitle( type );
-  
   std::cout << "GET X Title Size:  " << RATIO->GetYaxis()->GetTitleSize() << std::endl;
-   
   TPad *pad1 = new TPad("pad1","pad1",0,0.25,1,1);
   pad1->SetBottomMargin(0);
   pad1->Draw();
   pad1->cd();
   if(h1->GetBinContent(nbins) != 0.0){
-    h1->GetYaxis()->SetRangeUser(0.2*h1->GetBinContent(nbins), 2*h1->GetBinContent(1));
+    if(h2->GetBinContent(nbins)-h2->GetBinError(nbins) >0){
+      h1->GetYaxis()->SetRangeUser(0.2*(h2->GetBinContent(nbins)-h2->GetBinError(nbins)), 2*h1->GetBinContent(1));
+    }else{
+      h1->GetYaxis()->SetRangeUser(0.1, 10*h1->GetBinContent(1));
+    }
   }else{
     h1->GetYaxis()->SetRangeUser(0.2, 2*h1->GetBinContent(1));
   }
@@ -208,11 +225,24 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
   pad1->Update();
   C->cd();
   
-  h2->SetLineColor(kGreen);
-  leg = new TLegend(0.65, 0.7, 0.89, 0.9);//(xmin, ymin, xmax, ymax)
+  switch(color){
+  case 0:
+    h2->SetLineColor(kGreen);
+    break;
+  case 1:
+    h2->SetLineColor(kRed);
+    break;
+  case 2:
+    h2->SetLineColor(kBlue);
+    break;
+  default:
+    std::cout << "---Default---" << std::endl;
+    break;
+  }
+  leg = new TLegend(0.675, 0.83, 0.89, 0.92);//(xmin, ymin, xmax, ymax)
   leg->AddEntry(h1, label + " " + h1Name ,"lep");
   leg->AddEntry(h2, label + " " + h2Name ,"lf");
-  leg->SetTextSize(.02);
+  leg->SetTextSize(.018);
   leg->SetFillColor(0);
   leg->SetLineColor(0);
   leg->Draw();
@@ -250,7 +280,21 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
   RATIO->SetMarkerSize(.3);
   RATIO->SetMarkerColor(1);
   RATIO->SetMarkerStyle(20);
-  RATIO->SetFillColor(kGreen-10);
+  switch(color){
+  case 0:
+    RATIO->SetFillColor(kGreen-10);
+    break;
+  case 1:
+    RATIO->SetFillColor(kRed-10);
+    break;
+  case 2:
+    RATIO->SetFillColor(kBlue-10);
+    break;
+  default:
+    std::cout << "---Default---" << std::endl;
+    break;
+  }
+  //RATIO->SetFillColor(kGreen-10);
 
   RATIO2->SetStats(0);
   RATIO2->SetTitle("");
@@ -262,13 +306,34 @@ int RatioPlotsBandV2(TH1F* h1, TH1F* h2, TString h1Name = "h1Name", TString h2Na
   RATIO2->GetXaxis()->SetTitleSize(0.11);
   RATIO2->SetXTitle( label );
   RATIO2->SetYTitle("Ratio");
-  RATIO2->SetFillColor(kGreen-10);
-  RATIO2->SetLineColor(kGreen-10);
   RATIO2->SetLineWidth(2);
-  
   TH1F* RATIO2clone = (TH1F*)RATIO2->Clone("ratio2clone");
   RATIO2clone->SetFillColor(0);
   RATIO2clone->SetLineColor(kGreen);
+  switch(color){
+  case 0:
+    RATIO2->SetLineColor(kGreen-10);
+    RATIO2->SetFillColor(kGreen-10);
+    RATIO2clone->SetLineColor(kGreen);
+    break;
+  case 1:
+    RATIO2->SetLineColor(kRed-10);
+    RATIO2->SetFillColor(kRed-10);
+    RATIO2clone->SetLineColor(kRed);
+    break;
+  case 2:
+    RATIO2->SetLineColor(kBlue-10);
+    RATIO2->SetFillColor(kBlue-10);
+    RATIO2clone->SetLineColor(kBlue);
+    break;
+  default:
+    std::cout << "---Default---" << std::endl;
+    break;
+  }
+  
+  //RATIO2->SetFillColor(kGreen-10);
+  //RATIO2->SetLineColor(kGreen-10);
+  
 
   //RATIO->SetFillColor(0);
   RATIO->SetLineWidth(2);

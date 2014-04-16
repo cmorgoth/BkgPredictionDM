@@ -21,11 +21,18 @@ const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85,  2.50};
 const float BaseDM::MR_BinArr[] = {200., 300., 400., 600.,  3500.};
 
 //MR Categories
+/*
 const int r2B[4] = {11, 6, 6, 4};
 float c1B[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.9, 0.95, 1.0, 1.2};
 float c2B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
 float c3B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
 float c4B[] = {0.50, 0.60, 0.70, .950, 1.2};
+*/
+const int r2B[4] = {7, 4, 4, 4};
+float c1B[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 1.2};
+float c2B[] = {0.50, 0.575, 0.65, 0.75, 1.2};
+float c3B[] = {0.50, 0.575, 0.65, 0.75, 1.2};
+float c4B[] = {0.50, 0.575, 0.65, 0.75, 1.2};
 
 std::vector<float*> v;
 
@@ -87,6 +94,19 @@ int main(){
     }
   }
   
+  TH1F* t_MC[12];
+  for(int j = 0; j < 12; j++){
+    t_MC[j] = new TH1F(*tt[j]);
+    t_MC[j]->Add(dy[j]);
+    t_MC[j]->Add(z[j]);
+    t_MC[j]->Add(w[j], 1.0);
+  }
+  
+  /*double eRR;
+  for(int i = 0; i < 12; i++){
+    std::cout << i << " tt: " << tt[i]->Integral() << std::endl;
+    std::cout << i << " tt: " << tt[i]->IntegralAndError(1,tt[i]->GetNbinsX(), eRR,"") << std::endl;
+    }*/
       
   TH1F* dy_ne[12];
   TH1F* z_ne[12];
@@ -120,13 +140,14 @@ int main(){
   for(int i = 0; i < 4; i++){
     TString s(Form("t_mc_1mu_cat%d",i+1)); 
     //One Muon
-    t_mc_1mu[i] = new TH1F(s,s, r2B[i], v.at(i));
+    //t_mc_1mu[i] = new TH1F(s,s, r2B[i], v.at(i));
     t_s_1mu[i] = new THStack(s+"_stack", s+"_stack");
-    
-    t_mc_1mu[i] = tt[i+4];
+    //t_mc_1mu[i] = tt[i+4];
+    t_mc_1mu[i] = new TH1F(*tt[i+4]);
     t_mc_1mu[i]->Add(dy[i+4]);
     t_mc_1mu[i]->Add(z[i+4]);
     t_mc_1mu[i]->Add(w[i+4]);
+
     //Cosmetics
     tt_ne[i+4]->SetFillColor(kPink+9);
     dy_ne[i+4]->SetFillColor(kViolet+9);
@@ -149,8 +170,9 @@ int main(){
     s = Form("t_mc_0mu_cat%d",i+1);
     t_s_0mu[i] = new THStack(s+"_stack", s+"_stack");
     //Creating Summed Histogram Bkg
-    t_mc[i] = new TH1F(s,s, r2B[i], v.at(i));
-    t_mc[i] = tt[i];
+    //t_mc[i] = new TH1F(s,s, r2B[i], v.at(i));
+    t_mc[i] = new TH1F(*tt[i]);
+    //t_mc[i] = tt[i];
     t_mc[i]->Add(dy[i]);
     t_mc[i]->Add(z[i]);
     t_mc[i]->Add(w[i]);
@@ -173,7 +195,121 @@ int main(){
     leg_nm[i]->AddEntry(data[i],"Data","lep");
   }
   
+ 
+
+  /*
+  for(int i = 0; i < 4; i++){
+    std::cout << "==== Cat " << i+1 << "====" << std::endl;
+    std::cout << t_MC[i]->Integral()-t_mc[i]->Integral() << "  " << t_MC[i]->Integral()
+	      << " " << t_mc[i]->Integral() << std::endl;
+    std::cout << t_MC[i+4]->Integral()-t_mc_1mu[i]->Integral() << "  " << t_MC[i+4]->Integral()
+	      << " " << t_mc_1mu[i]->Integral() << std::endl;
+  }
+  */
+
+ 
+  //Print Out Prediction in different cat after systematics
+  double Nerr[7] = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
+  double Nbkg[7] = {-1.0,-1.0,-1.0,-1.0,-1.0,-1.0,-1.0};
+  TString catN[4] = {"VL","L","H","VH"};
+  std::cout << "==== 0-mu ====" << std::endl;
+  for(int i = 0; i < 4; i++){
+    //std::cout << "==== Cat " << i+1 << " ====" << std::endl;
+    Nbkg[0] = z[i]->IntegralAndError(1,z[i]->GetNbinsX(),Nerr[0],"");
+    Nbkg[1] = w[i]->IntegralAndError(1,w[i]->GetNbinsX(),Nerr[1],"");
+    Nbkg[2] = dy[i]->IntegralAndError(1,dy[i]->GetNbinsX(),Nerr[2],"");
+    Nbkg[3] = tt[i]->IntegralAndError(1,tt[i]->GetNbinsX(),Nerr[3],"");
+    Nbkg[4] = t_mc[i]->IntegralAndError(1,t_mc[i]->GetNbinsX(),Nerr[4],"");
+    Nbkg[5] = data[i]->IntegralAndError(1,data[i]->GetNbinsX(),Nerr[5],"");
+    
+    std::cout << catN[i] << " & " << Nbkg[0] << "\\pm" << Nerr[0] <<
+      " & " << Nbkg[1] << "\\pm" << Nerr[1] <<
+      " & " << Nbkg[2] << "\\pm" << Nerr[2] <<
+      " & " << Nbkg[3] << "\\pm" << Nerr[3] <<
+      " & " << Nbkg[4] << "\\pm" << Nerr[4] <<
+      " & " << Nbkg[5] << " \\\\"<< std::endl;
+    
+  }
   
+   std::cout << "==== 1-mu ====" << std::endl;
+  for(int i = 0; i < 4; i++){
+    //std::cout << "==== Cat " << i+1 << " ====" << std::endl;
+    Nbkg[0] = z[i+4]->IntegralAndError(1,z[i+4]->GetNbinsX(),Nerr[0],"");
+    Nbkg[1] = w[i+4]->IntegralAndError(1,w[i+4]->GetNbinsX(),Nerr[1],"");
+    Nbkg[2] = dy[i+4]->IntegralAndError(1,dy[i+4]->GetNbinsX(),Nerr[2],"");
+    Nbkg[3] = tt[i+4]->IntegralAndError(1,tt[i+4]->GetNbinsX(),Nerr[3],"");
+    Nbkg[4] = t_mc_1mu[i]->IntegralAndError(1,t_mc_1mu[i+4]->GetNbinsX(),Nerr[4],"");
+    Nbkg[5] = data[i+4]->IntegralAndError(1,data[i+4]->GetNbinsX(),Nerr[5],"");
+    
+    std::cout << catN[i] << " & " << Nbkg[0] << "\\pm" << Nerr[0] <<
+      " & " << Nbkg[1] << "\\pm" << Nerr[1] <<
+      " & " << Nbkg[2] << "\\pm" << Nerr[2] <<
+      " & " << Nbkg[3] << "\\pm" << Nerr[3] <<
+      " & " << Nbkg[4] << "\\pm" << Nerr[4] <<
+      " & " << Nbkg[5] << " \\\\"<< std::endl;
+  }
+  
+  //Preparing k_factors and Systematics
+  t_mc[2]->Add(t_mc[3]);//Adding 3rd and 4th category
+  t_mc_1mu[2]->Add(t_mc_1mu[3]);//Adding 3rd and 4th category
+  TH1F* kf[8];//1bin-kFactor
+  //Scaling MC to match data->ttbar k-Factor
+  for(int i = 0; i < 4; i++){
+    std::cout << "==== Cat " << i+1 << "====" << std::endl;
+    TString s(Form("cat_%d_0mu_kf",i+1));
+    kf[i] = new TH1F(s, s, 1, 0.0, 1.0);
+    kf[i]->SetBinContent(1,data[i]->Integral()/t_mc[i]->Integral());
+    std::cout << "scale 0mu: " << data[i]->Integral()/t_mc[i]->Integral() 
+	      << " "  << kf[i]->GetBinContent(1) << std::endl;
+    t_mc[i]->Scale(data[i]->Integral()/t_mc[i]->Integral());
+    
+    s = Form("cat_%d_1mu_kf",i+1);
+    kf[i+4] = new TH1F(s, s, 1, 0.0, 1.0);
+    kf[i+4]->SetBinContent(1,data[i+4]->Integral()/t_mc_1mu[i]->Integral());
+    std::cout << "scale 1mu: " << data[i+4]->Integral()/t_mc_1mu[i]->Integral() 
+	      << " "  << kf[i+4]->GetBinContent(1) << std::endl;
+    t_mc_1mu[i]->Scale(data[i+4]->Integral()/t_mc_1mu[i]->Integral()); 
+  }
+
+  //Get Systematics
+  TH1F* sys[8];
+  for(int j = 0; j < 4; j++){
+    TString s(Form("sys_cat_%d_0mu",j+1)); 
+    sys[j] = new TH1F(s,s, r2B[j], v.at(j));
+    sys[j]->Sumw2();
+    for(int k = 1; k <= sys[j]->GetNbinsX(); k++){
+      double ss = (data[j]->GetBinContent(k)-t_mc[j]->GetBinContent(k))/t_mc[j]->GetBinContent(k);
+      sys[j]->SetBinContent(k,ss);
+    }
+  }
+  
+  for(int j = 0; j < 4; j++){
+    TString s(Form("sys_cat_%d_1mu",j+1)); 
+    sys[j+4] = new TH1F(s,s, r2B[j], v.at(j));
+    sys[j+4]->Sumw2();
+    for(int k = 1; k <= sys[j+4]->GetNbinsX(); k++){
+      double ss = fabs(data[j+4]->GetBinContent(k)-t_mc_1mu[j]->GetBinContent(k))/t_mc_1mu[j]->GetBinContent(k);
+      sys[j+4]->SetBinContent(k,ss);
+    }
+  }
+  
+  //Apply Systematics
+  for(int j = 0; j < 4; j++){
+    for(int k = 1; k <= sys[j]->GetNbinsX(); k++){
+      double err = sqrt(pow(t_mc[j]->GetBinError(k),2) + 
+			pow(t_mc[j]->GetBinContent(k)*sys[j]->GetBinContent(k),2));
+      t_mc[j]->SetBinError(k,err);
+    }
+  }
+
+  for(int j = 0; j < 4; j++){
+    for(int k = 1; k <= sys[j+4]->GetNbinsX(); k++){
+      double err = sqrt(pow(t_mc_1mu[j]->GetBinError(k),2) + 
+			pow(t_mc_1mu[j]->GetBinContent(k)*sys[j+4]->GetBinContent(k),2));
+      t_mc_1mu[j]->SetBinError(k,err);
+    }
+  }
+
   TFile* f1 = new TFile("Pred_Files/Two_TT_Cat_PredV2.root","RECREATE");
   TString n, n1, ex_s;
   for(int i = 0; i < 4; i++){
@@ -181,17 +317,21 @@ int main(){
     n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
     ex_s = TString(Form("cat%d",i+1));
     
-    RatioPlotsBandV2( data[i], t_mc[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Two_TT_0mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[4+i], t_mc_1mu[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Two_TT_1mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsV2(t_s_1mu[i], data[i+4], t_mc_1mu[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Stack_Two_TT_1mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i), leg[i]);
-    RatioPlotsV2(t_s_0mu[i], data[i], t_mc[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Stack_Two_TT_0mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i), leg[i]);
-
+    RatioPlotsBandV2( data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Two_TT_0mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i),1);
+    RatioPlotsBandV2( data[4+i], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Two_TT_1mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i),1);
+    RatioPlotsV2(t_s_1mu[i], data[i+4], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Stack_Two_TT_1mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i), leg[i]);
+    RatioPlotsV2(t_s_0mu[i], data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Stack_Two_TT_0mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i), leg[i]);
+    
     data[i]->Write();
     t_mc[i]->Write();
-   
+    t_mc_1mu[i]->Write();
+    sys[i]->Write();
+    sys[i+4]->Write();
+    kf[i]->Write();
+    kf[i+4]->Write();
   }
   f1->Close();
- 
+  
   
   return 0;
 

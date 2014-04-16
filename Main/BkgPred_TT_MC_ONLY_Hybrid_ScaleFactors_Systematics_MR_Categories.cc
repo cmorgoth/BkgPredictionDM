@@ -27,7 +27,14 @@ float c2B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
 float c3B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
 float c4B[] = {0.50, 0.60, 0.70, .950, 1.2};
 
+const int r2B_tt[4] = {7, 4, 4, 4};
+float c1B_tt[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 1.2};
+float c2B_tt[] = {0.50, 0.575, 0.65, 0.75, 1.2};
+float c3B_tt[] = {0.50, 0.575, 0.65, 0.75, 1.2};
+float c4B_tt[] = {0.50, 0.575, 0.65, 0.75, 1.2};
+
 std::vector<float*> v;
+std::vector<float*> v_tt;
 
 
 void set_plot_style(){
@@ -54,6 +61,10 @@ int main(){
   v.push_back(c3B);
   v.push_back(c4B);
   
+  v_tt.push_back(c1B_tt);
+  v_tt.push_back(c2B_tt);
+  v_tt.push_back(c3B_tt);
+  v_tt.push_back(c4B_tt);
   ///////////////////////////////////////////////////////
   ///////////////Creating MR categories binned in R2/////
   //////////////////////////////////////////////////////
@@ -86,12 +97,65 @@ int main(){
       
     }
   }
+  std::cout << "debug0" << std::endl;
+  ///////////////////////////////////////////////////////
+  ////////////////ttbar kfactors and SYS/////////////////
+  //////////////////////////////////////////////////////
+  TFile* ftt = new TFile("Pred_Files/Two_TT_Cat_PredV2.root"); 
+  std::cout << "debug1" << std::endl;
+  TH1F* sys_tt_0mu[4];
+  TH1F* kf_tt_0mu[4];
+  TH1F* sys_tt_1mu[4];
+  TH1F* kf_tt_1mu[4];
+  for(int i = 0; i < 4; i++){
+    TString nm(Form("sys_cat_%d_0mu", i+1));
+    std::cout << nm << std::endl;
+    sys_tt_0mu[i] = (TH1F*)ftt->Get(nm);
+    nm = Form("cat_%d_0mu_kf", i+1);
+    std::cout << nm << std::endl;
+    kf_tt_0mu[i] = (TH1F*)ftt->Get(nm);
+    
+    nm = Form("sys_cat_%d_1mu", i+1);
+    std::cout << nm << std::endl;
+    sys_tt_1mu[i] = (TH1F*)ftt->Get(nm);
+    nm = Form("cat_%d_1mu_kf", i+1);
+    std::cout << nm << std::endl;
+    kf_tt_1mu[i] = (TH1F*)ftt->Get(nm);
+  }
+  std::cout << "debug2" << std::endl;
+  //Include ttbar systematics and kFactor
+  for(int i = 0; i < 4; i++){
+    std::cout << "debug2.01 " << kf_tt_0mu[i]->GetBinContent(1) << std::endl;
+    tt[i]->Scale(kf_tt_0mu[i]->GetBinContent(1));
+    std::cout << "debug2.02" << std::endl;
+    tt[i+4]->Scale(kf_tt_1mu[i]->GetBinContent(1));
+    std::cout << "debug2.1" << std::endl;
+    for(int k = 1; k <= tt[i]->GetNbinsX(); k++){
+      int bn = -1;
+      if(i == 0 && tt[i]->GetBinCenter(k) > 0.8){
+	bn = 7;
+      }else if(i != 0 && tt[i]->GetBinCenter(k) > 0.75){
+	bn = 4;
+      }else{
+	bn = k;
+      }
+      std::cout << "debug2.2" << std::endl;
+      double err = sqrt(pow(tt[i]->GetBinError(k),2) + 
+			pow(tt[i]->GetBinContent(k)*sys_tt_0mu[i]->GetBinContent(bn),2));
+      tt[i]->SetBinError(k,err);
+      //1mu
+      std::cout << "debug2.3" << std::endl;
+      err = sqrt(pow(tt[i+4]->GetBinError(k),2) + 
+		 pow(tt[i+4]->GetBinContent(k)*sys_tt_1mu[i]->GetBinContent(bn),2));
+      tt[i+4]->SetBinError(k,err); 
+    }
+  }
+  std::cout << "debug3" << std::endl;
   
-      
   /////////////////////////////////////////////////////////
   /////////////////DY 2mu Prediction//////////////////////
   ////////////////////////////////////////////////////////
-
+  
   TH1F* p_0b_2mu_dy[4];
   for(int i = 0; i < 4; i++){
     p_0b_2mu_dy[i] = new TH1F(*data[8+i]);
@@ -252,20 +316,14 @@ int main(){
     for(int j = 1; j <= p_0b_1mu_c[i]->GetNbinsX(); j++){
       double err = sqrt(pow(p_0b_1mu_c_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
       p_0b_1mu_c_sys[i]->SetBinError(j, err);
-      
-      //err = sqrt(pow(p_0b_0mu_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_sys[i]->GetBinError(j),2));
-      //p_0b_0mu_sys[i]->SetBinError(j, err);
-      
-      //Individual Bkg
       err = sqrt(pow(p_0b_0mu_dy_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_dy_sys[i]->GetBinError(j),2));
       p_0b_0mu_dy_sys[i]->SetBinError(j, err);
       err = sqrt(pow(p_0b_0mu_z_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_z_sys[i]->GetBinError(j),2));
       p_0b_0mu_z_sys[i]->SetBinError(j, err);
       err = sqrt(pow(p_0b_0mu_w_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_w_sys[i]->GetBinError(j),2));
       p_0b_0mu_w_sys[i]->SetBinError(j, err);
-      //err = sqrt(pow(p_0b_0mu_tt_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_tt_sys[i]->GetBinError(j),2));
-      err = 2*p_0b_0mu_tt_sys[i]->GetBinError(j);
-      p_0b_0mu_tt_sys[i]->SetBinError(j, err);
+      //err = 2*p_0b_0mu_tt_sys[i]->GetBinError(j);
+      //p_0b_0mu_tt_sys[i]->SetBinError(j, err);
     }
     p_0b_0mu_sys[i] = new TH1F(*p_0b_0mu_dy_sys[i]);
     p_0b_0mu_sys[i]->Add(p_0b_0mu_z_sys[i]);
@@ -299,10 +357,10 @@ int main(){
     n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
     n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
     ex_s = TString(Form("cat%d",i+1));
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1-#mu BOX", "BKg Pred 1-#mu BOX", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i));
-    RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0-#mu BOX", "BKg Pred 0-#mu BOX", "PredPlots/Bkg_R2_0mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i));
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1#mu", "BKg Pred 1#mu", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i),2);
+    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlots/Bkg_R2_0mu_0b_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1#mu", "BKg Pred 1#mu", "PredPlots/Closure_Bkg_R2_1mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i),2);
+    RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlots/Bkg_R2_0mu_0b_Pred_SYS_V2"+ex_s, "RSQ", r2B[i], v.at(i),0);
     //p_0b_1mu_c[i]->Write(n);
     //p_0b_1mu_c_sys[i]->Write(n+"_sys");
     //p_0b_0mu[i]->Write(n1);
