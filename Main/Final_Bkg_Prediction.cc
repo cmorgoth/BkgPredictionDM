@@ -1,3 +1,7 @@
+/*
+Final Background Prediction, June 2014
+Includes bug fixed for the kfactors
+*/
 #include <iostream>
 #include <fstream>
 #include "TROOT.h"
