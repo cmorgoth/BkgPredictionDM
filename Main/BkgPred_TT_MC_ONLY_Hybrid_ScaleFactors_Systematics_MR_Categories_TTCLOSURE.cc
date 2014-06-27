@@ -54,7 +54,8 @@ int main(){
 
   set_plot_style();
   TCanvas* cc = new TCanvas("cc", "cc", 640, 640);
-  TFile* F = new TFile("FinalROOTFiles/TwoTightBtagCorr_MRcategories.root");
+  //TFile* F = new TFile("FinalROOTFiles/TwoTightBtagCorr_MRcategories.root");
+  TFile* F = new TFile("FinalROOT_May2014/TwoBtag_May_2014.root");
   
   v.push_back(c1B);
   v.push_back(c2B);
@@ -85,7 +86,7 @@ int main(){
       TString name3 = TString(Form("W_cat%d_1D_%dmu_Box",j,i));
       w[4*i+j-1] = (TH1F*)F->Get(name3);
       w[4*i+j-1]->Scale(w_k2factor);
-      TString name4 = TString(Form("TT_cat%d_1D_%dmu_Box",j,i));
+      TString name4 = TString(Form("TT_L_cat%d_1D_%dmu_Box",j,i));
       tt[4*i+j-1] = (TH1F*)F->Get(name4);
       tt[4*i+j-1]->Scale(tt_k2factor);
       TString name5 = TString(Form("Data_cat%d_1D_%dmu_Box",j,i));
@@ -101,12 +102,6 @@ int main(){
     t_MC[j]->Add(z[j]);
     t_MC[j]->Add(w[j], 1.0);
   }
-  
-  /*double eRR;
-  for(int i = 0; i < 12; i++){
-    std::cout << i << " tt: " << tt[i]->Integral() << std::endl;
-    std::cout << i << " tt: " << tt[i]->IntegralAndError(1,tt[i]->GetNbinsX(), eRR,"") << std::endl;
-    }*/
       
   TH1F* dy_ne[12];
   TH1F* z_ne[12];
@@ -310,17 +305,18 @@ int main(){
     }
   }
 
-  TFile* f1 = new TFile("Pred_Files/Two_TT_Cat_PredV2.root","RECREATE");
+  TString SYS = "_Nominal";
+  TFile* f1 = new TFile("Pred_Files/TwoBtag_May_2014_Nominal.root","RECREATE");
   TString n, n1, ex_s;
-  for(int i = 0; i < 4; i++){
+  for(int i = 0; i < 3; i++){
     n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
     n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
     ex_s = TString(Form("cat%d",i+1));
     
-    RatioPlotsBandV2( data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Two_TT_0mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i),1);
-    RatioPlotsBandV2( data[4+i], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Two_TT_1mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i),1);
-    RatioPlotsV2(t_s_1mu[i], data[i+4], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Stack_Two_TT_1mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i), leg[i]);
-    RatioPlotsV2(t_s_0mu[i], data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Stack_Two_TT_0mu_MC_Pred_V2"+ex_s, "RSQ", r2B[i], v.at(i), leg[i]);
+    RatioPlotsBandV2( data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Two_TT_0mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),1);
+    RatioPlotsBandV2( data[4+i], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Two_TT_1mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),1);
+    RatioPlotsV2(t_s_1mu[i], data[i+4], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Stack_Two_TT_1mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i), leg[i]);
+    RatioPlotsV2(t_s_0mu[i], data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Stack_Two_TT_0mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i), leg[i]);
     
     data[i]->Write();
     t_mc[i]->Write();

@@ -21,19 +21,18 @@ const float BaseDM::RSQ_BinArr[] = {0.5, 0.6, 0.725, 0.85,  2.50};
 const float BaseDM::MR_BinArr[] = {200., 300., 400., 600.,  3500.};
 
 //MR Categories
+/*
 const int r2B[4] = {11, 6, 6, 4};
-
 float c1B[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 0.85, 0.9, 0.95, 1.0, 1.2};
 float c2B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
 float c3B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
 float c4B[] = {0.50, 0.60, 0.70, .950, 1.2};
-
-/*
-float c1B[] = {0.50, 0.55, 0.60, 0.655, 0.705, 0.760, 0.81, 0.86, 0.91, 0.96, 1.05, 1.2};
-float c2B[] = {0.50, 0.575, 0.665, 0.76, 0.86, .945, 1.2};
-float c3B[] = {0.50, 0.575, 0.65, 0.75, 0.85, .950, 1.2};
-float c4B[] = {0.50, 0.60, 0.70, .950, 1.20};
 */
+const int r2B[4] = {8, 4, 4, 4};
+float c1B[] = {0.50, 0.55, 0.610, 0.675, 0.75, 0.825, 0.9, .995, 1.2};
+float c2B[] = {0.50, 0.59, 0.7, 0.85, 1.2};
+float c3B[] = {0.50, 0.59, 0.7, 0.85, 1.2};
+float c4B[] = {0.50, 0.59, 0.7, 0.85, 1.2};
 
 const int r2B_tt[4] = {7, 4, 4, 4};
 float c1B_tt[] = {0.50, 0.55, 0.60, 0.65, 0.70, 0.75, 0.80, 1.2};
@@ -65,7 +64,7 @@ int main(){
   //TFile* F = new TFile("FinalROOTFiles/MRcategoriesV2.root");//Original File Before ALL SYSTEMATICS
   
   //TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014.root");
-  TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014_Original.root");
+  TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014_SingleTriggerFewerBinsV3.root");
   
   //TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014_Fixe2DHLT.root");
   //TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014_NewTrigger.root");
@@ -108,30 +107,25 @@ int main(){
   
   for(int i = 0; i < 3; i++){
     for(int j = 1; j <= 4; j++){
-      std::cout << "deb 1.1" << std::endl;
       TString name1 = TString(Form("DY_cat%d_1D_%dmu_Box",j,i));
-      std::cout << "deb 1.2" << std::endl;
       dy[4*i+j-1] = (TH1F*)F->Get(name1);
-      std::cout << "deb 1.3" << std::endl;
       dy[4*i+j-1]->Scale(z_k2factor);
+      
       TString name2 = TString(Form("Z_cat%d_1D_%dmu_Box",j,i));
       z[4*i+j-1] = (TH1F*)F->Get(name2);
-       std::cout << "deb 1.4" << std::endl;
       z[4*i+j-1]->Scale(z_k2factor);
+      
       TString name3 = TString(Form("W_cat%d_1D_%dmu_Box",j,i));
       w[4*i+j-1] = (TH1F*)F->Get(name3);
-      std::cout << "deb 1.5" << std::endl;
       w[4*i+j-1]->Scale(w_k2factor);
+      
       TString name4 = TString(Form("TT_L_cat%d_1D_%dmu_Box",j,i));
       //TString name4 = TString(Form("TT_cat%d_1D_%dmu_Box",j,i));
       tt[4*i+j-1] = (TH1F*)F->Get(name4);
-      std::cout << "deb 1.6" << std::endl;
       tt[4*i+j-1]->Scale(tt_k2factor);
-      std::cout << "deb 1.6.1" << std::endl;
+      
       TString name5 = TString(Form("Data_cat%d_1D_%dmu_Box",j,i));
-      std::cout << "deb 1.6.2" << std::endl;
       data[4*i+j-1] = (TH1F*)F->Get(name5);
-       std::cout << "deb 1.7" << std::endl;
     }
   }
   std::cout << "debug0" << std::endl;
@@ -270,23 +264,11 @@ int main(){
   ////////////////////////////////////
   ///////////W 1mu Pred///////////////
   ////////////////////////////////////
-  TH1F* data_copy_1mu[4];
-  TString nd;
-  for(int i = 0; i < 4; i++){
-    nd = TString(Form("cat%d_data_Ori",i+1));
-    data_copy_1mu[i] = new TH1F(nd, nd, r2B[i], v.at(i));
-    for(int j = 1; j <= data[4+i]->GetNbinsX(); j++){
-      data_copy_1mu[i]->SetBinContent(j,data[4+i]->GetBinContent(j));
-      data_copy_1mu[i]->SetBinError(j,data[4+i]->GetBinError(j));
-    }
-  }
-  
+
   TH1F* p_0b_1mu_w[4];
   TH1F* r_0b_1mu_w[4];
-
   for(int i = 0; i < 4; i++){
     p_0b_1mu_w[i] = new TH1F( *data[4+i] );//W prediction for 0b 1mu box
-    //p_0b_1mu_w[i] = new TH1F(*p_0b_1mu_wc[i]);
     p_0b_1mu_w[i]->Sumw2();
     p_0b_1mu_w[i]->Add(tt[4+i], -1.0);//Subtracting tt 0b 2mu from MC
     p_0b_1mu_w[i]->Add(p_0b_1mu_dy[i], -1.0);//Subtracting DY 0b 1mu Prediction
@@ -314,7 +296,7 @@ int main(){
   TH1F* p_0b_0mu_z[4];
   TH1F* r_0b_0mu_z[4];
   for(int i = 0; i < 4; i++){
-    p_0b_0mu_z[i] = new TH1F( *p_0b_1mu_w[i] );//Z prediction for 0b 0mu box
+    p_0b_0mu_z[i] = new TH1F( *p_0b_1mu_w[i] );//W prediction for 0b 0mu box
     p_0b_0mu_z[i]->Sumw2();
     r_0b_0mu_z[i] = new TH1F( *z[i] );
     r_0b_0mu_z[i]->Sumw2();
@@ -400,7 +382,6 @@ int main(){
       p_0b_0mu_w_sys[i]->SetBinError(j, err);
       //err = 2*p_0b_0mu_tt_sys[i]->GetBinError(j);
       //p_0b_0mu_tt_sys[i]->SetBinError(j, err);
-      /*
       if( i == 0 && (j == 6 || j == 11)){
 	err = 0.30*p_0b_0mu_dy_sys[i]->GetBinContent(j);
 	p_0b_0mu_dy_sys[i]->SetBinError(j, err);
@@ -418,7 +399,6 @@ int main(){
 	err = 0.30*p_0b_0mu_w_sys[i]->GetBinContent(j);
 	p_0b_0mu_w_sys[i]->SetBinError(j, err);
       }
-      */
     }
     p_0b_0mu_sys[i] = new TH1F(*p_0b_0mu_dy_sys[i]);
     p_0b_0mu_sys[i]->Sumw2();
@@ -449,7 +429,7 @@ int main(){
   
   
   TString n, n1, ex_s;
-  TString SYS = "_NEWv4";
+  TString SYS = "_NEW_Bin";
   TFile* f1 = new TFile("Pred_Files/MR_Cat_PredV2"+SYS+".root","RECREATE");
   for(int i = 0; i < 4; i++){
     n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
@@ -472,13 +452,9 @@ int main(){
     n = TString(Form("cat%d_tt_Pred",i+1));
     p_0b_0mu_tt_sys[i]->Write(n);
     
-    data[4+i]->Write();
+    //data[4+i]->Write();
     data[i]->Write();
-    n = TString(Form("cat%d_W1mu_Sub",i+1));
-    p_0b_1mu_w[i]->Write(n);
-    data_copy_1mu[i]->Write();
-    n = TString(Form("cat%d_W_PREDICTION",i+1));
-    p_0b_1mu_wc[i]->Write(n);
+
     //data[8+i]->Write();
     //w[4+i]->Write();
     //dy[8+i]->Write();
