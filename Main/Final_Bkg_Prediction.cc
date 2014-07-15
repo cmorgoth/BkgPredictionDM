@@ -66,8 +66,19 @@ int main(){
   v_tt.push_back(c3B_tt);
   v_tt.push_back(c4B_tt);
 
-  TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014_Original.root");
+  //TFile* F = new TFile("FinalROOT_May2014/VetoBtag_May_2014_Original.root");
+  
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_OriginalTrigger_OnlyNoMU.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_OriginalTrigger_NoMU_and_Mu.root");
+  
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_NewBinnedTrigger_OnlyNoMU.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_NewBinnedTrigger_NoMU_and_Mu.root");
+  
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_SingleTrigger_Only_NoMu.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_SingleTrigger_NoMU_and_Mu.root");
 
+  TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_OriginalTrigger_NoMU_and_Mu_NOisr.root");
+  
   ///////////////////////////////////////////////////////
   ///////////////Creating MR categories binned in R2/////
   //////////////////////////////////////////////////////
@@ -82,8 +93,14 @@ int main(){
   //double w_k2factor = 1.2455;
   
   double tt_k2factor = 1.8034;
-  double z_k2factor[] = {1.25233, 1.11182, 1.16463, 1.16463};
-  double w_k2factor[] = {1.27598, 1.22548, 1.02219, 0.832904};
+  //double z_k2factor[] = {1.25233, 1.11182, 1.16463, 1.16463};//Mu and NoMu
+  //double w_k2factor[] = {1.27598, 1.22548, 1.02219, 0.832904};
+
+  //double z_k2factor[] = {1.16503, 1.11454, 1.30965, 1.30965};//NoMu Only
+  //double w_k2factor[] = {1.1926, 1.22523, 1.1683, 0.943965};
+
+  double z_k2factor[] = {1.15505, 0.970674, 0.986606, 0.986606};//NoMu Only
+  double w_k2factor[] = {1.19173, 1.083, 0.868898, 0.705113};
   
   for(int i = 0; i < 3; i++){
     for(int j = 1; j <= 4; j++){
@@ -108,7 +125,7 @@ int main(){
       data[4*i+j-1] = (TH1F*)F->Get(name5);
     }
   }
-  std::cout << "debug 0" << std::endl;
+  //std::cout << "debug 0" << std::endl;
   ///////////////////////////////////////////////////////
   ////////////////ttbar kfactors and SYS/////////////////
   //////////////////////////////////////////////////////
@@ -129,14 +146,14 @@ int main(){
     nm = Form("cat_%d_1mu_kf", i+1);
     kf_tt_1mu[i] = (TH1F*)ftt->Get(nm);
   }
-  std::cout << "debug 1" << std::endl;
+  //std::cout << "debug 1" << std::endl;
   for(int i = 0; i < 4; i++){
     //tt[i]->Scale(kf_tt_0mu[i]->GetBinContent(1));//Uses 0mu-2b SF
     int aux = i; 
     if(i == 3)aux = 2;//Avoid using SF from last category, use third category
     tt[i]->Scale(kf_tt_1mu[aux]->GetBinContent(1));//Uses 1mu-2b SF
     tt[i+4]->Scale(kf_tt_1mu[aux]->GetBinContent(1));
-    std::cout << "debug 1.1" << std::endl;
+    
     for(int k = 1; k <= tt[i]->GetNbinsX(); k++){
       int bn = -1;
       if(i == 0 && tt[i]->GetBinCenter(k) > 0.8){
@@ -146,20 +163,18 @@ int main(){
       }else{
 	bn = k;
       }
-      std::cout << "debug 1.2 " << k << std::endl;
       //double err = sqrt(pow(tt[i]->GetBinError(k),2) + 
       //pow(tt[i]->GetBinContent(k)*sys_tt_0mu[i]->GetBinContent(bn),2));//Uses 0mu-2b SYS
       double err = sqrt(pow(tt[i]->GetBinError(k),2) + 
 			pow(tt[i]->GetBinContent(k)*sys_tt_1mu[aux]->GetBinContent(bn),2));//Uses 1mu-2b SF SYS
       tt[i]->SetBinError(k,err);
-      std::cout << "debug 1.3 " << k << std::endl;
       //1mu
       err = sqrt(pow(tt[i+4]->GetBinError(k),2) + 
 		 pow(tt[i+4]->GetBinContent(k)*sys_tt_1mu[aux]->GetBinContent(bn),2));
       tt[i+4]->SetBinError(k,err); 
     }
   }
-  std::cout << "debug 2" << std::endl;
+  
   /////////////////////////////////////////////////////////
   /////////////////DY 2mu Prediction//////////////////////
   ////////////////////////////////////////////////////////
@@ -403,20 +418,28 @@ int main(){
   //Print Out Prediction in different cat
   for(int i = 0; i < 4; i++){
     std::cout << "==== Cat " << i+1 << " ====" << std::endl;
-    Integral = p_0b_0mu_w[i]->IntegralAndError(1, r2B[i], error, "");
+    Integral = p_0b_0mu_w_sys[i]->IntegralAndError(1, r2B[i], error, "");
     std::cout << "W: " << Integral << " \pm " << error << std::endl;
-    Integral = p_0b_0mu_z[i]->IntegralAndError(1, r2B[i], error, "");
+    Integral = p_0b_0mu_z_sys[i]->IntegralAndError(1, r2B[i], error, "");
     std::cout << "Z(nunu): " << Integral << " \pm " << error << std::endl;
-    Integral = p_0b_0mu_dy[i]->IntegralAndError(1, r2B[i], error, "");
+    Integral = p_0b_0mu_dy_sys[i]->IntegralAndError(1, r2B[i], error, "");
     std::cout << "Z(ll): " << Integral << " \pm " << error << std::endl;
-    Integral = p_0b_0mu_w[i]->IntegralAndError(1, r2B[i], error, "");
+    Integral = p_0b_0mu_tt_sys[i]->IntegralAndError(1, r2B[i], error, "");
+    //Integral = tt[i]->IntegralAndError(1, r2B[i], error, "");
     std::cout << "tt: "  << Integral << " \pm " << error << std::endl;
-    Integral = p_0b_0mu[i]->IntegralAndError(1, r2B[i], error, "");
-    std::cout << "TOTAL: "  << Integral << " \pm " << error << std::endl;
+    Integral = p_0b_0mu_sys[i]->IntegralAndError(1, r2B[i], error, "");
+    std::cout << "TOTAL BKG: "  << Integral << " \pm " << error << std::endl;
     Integral = data[i]->IntegralAndError(1, r2B[i], error, "");
     std::cout << "DATA: "  << Integral << " \pm " << error << std::endl;
     Integral = p_0b_0mu_v2[i]->IntegralAndError(1, r2B[i], error, "");
-    std::cout << "TOTAL V2: "  << Integral << " \pm " << error << std::endl;
+    std::cout << "TOTAL BKG V2: "  << Integral << " \pm " << error << std::endl;
+    std::cout << "------Closure----------" << std::endl;
+    Integral = p_0b_1mu_c_sys[i]->IntegralAndError(1, r2B[i], error, "");
+    std::cout << "TOTAL BKG: "  << Integral << " \pm " << error << std::endl;
+    Integral = data[i+4]->IntegralAndError(1, r2B[i], error, "");
+    std::cout << "DATA 1MU: "  << Integral << " \pm " << error << std::endl;
+    
+     
   }
   
   /////////////////
