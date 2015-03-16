@@ -52,6 +52,7 @@ void set_plot_style(){
 
 int main(){
   gROOT->Reset();
+
   set_plot_style();
   TCanvas* cc = new TCanvas("cc", "cc", 640, 640);
 
@@ -77,7 +78,14 @@ int main(){
   //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_SingleTrigger_Only_NoMu.root");
   //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_SingleTrigger_NoMU_and_Mu.root");
 
-  TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_OriginalTrigger_NoMU_and_Mu_NOisr.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_May_2014_OriginalTrigger_NoMU_and_Mu_NOisr.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_Loose_May_2014_NewTriger_AN.root");
+  
+
+
+  TFile* F = new TFile("FinalROOTFiles/VetoBtag_FixBtag_PFNoPu_Sep2014.root");
+  //TFile* F = new TFile("FinalROOTFiles/VetoBtag_NoMonoJet.root");
+  
   
   ///////////////////////////////////////////////////////
   ///////////////Creating MR categories binned in R2/////
@@ -91,17 +99,42 @@ int main(){
   //double tt_k2factor = 1.8034;
   //double z_k2factor = 1.1973;
   //double w_k2factor = 1.2455;
-  
-  double tt_k2factor = 1.8034;
-  //double z_k2factor[] = {1.25233, 1.11182, 1.16463, 1.16463};//Mu and NoMu
-  //double w_k2factor[] = {1.27598, 1.22548, 1.02219, 0.832904};
+ 
 
-  //double z_k2factor[] = {1.16503, 1.11454, 1.30965, 1.30965};//NoMu Only
-  //double w_k2factor[] = {1.1926, 1.22523, 1.1683, 0.943965};
-
-  double z_k2factor[] = {1.15505, 0.970674, 0.986606, 0.986606};//NoMu Only
-  double w_k2factor[] = {1.19173, 1.083, 0.868898, 0.705113};
+  //double z_k2factor[] = {1.17908, 1.04922, 0.742194, 0.819435};//NoMu Only
+  //double w_k2factor[] = {1.39833, 1.274, 1.14633, 0.897725};
   
+  //double z_k2factor[] = {1.14995, 1.04975, 0.742571, 0.819855};//NoMu Only
+  //double w_k2factor[] = {1.35609, 1.27472, 1.14695, 0.898208};
+  
+  //double z_k2factor[] = {1.14995, 1.04975, 0.742571, 0.819855};//NoMu Only
+  //double w_k2factor[] = {1.35612, 1.27472, 1.14695, 0.898208};
+
+
+  
+  //double z_k2factor[] = {1.16067, 1.05484, 0.99, 0.80138};//NoMu Only
+  //double w_k2factor[] = {1.34902, 1.25454, 1.12949, 0.875763};
+  
+  //double z_k2factor[] = {1.0, 1.0, 1.0, 1.0};//NoMu Only
+  //double w_k2factor[] = {1.0, 1.0, 1.0, 1.0};
+
+  //double z_k2factor[] = {1.0663, 1.0663, 1.0663, 1.0663};//NoMu Only
+  //double w_k2factor[] = {1.28877, 1.28877, 1.28877, 1.28877};
+  
+
+  double z_k2factor[] = {1.1973, 1.1973, 1.1973, 1.1973};//NoMu Only
+  double w_k2factor[] = {1.2401, 1.2401, 1.2401, 1.2401};
+  
+  //double z_k2factor[] = {1.14995, 1.04975, 0.742571, 0.819855};//NoMu Only
+  //double w_k2factor[] = {1.35612, 1.27472, 1.14695, 0.898208};
+
+  TFile* tt_F = new TFile("TT_KFACT_and_SYS.root");
+  TH1F* h_ttK = (TH1F*)tt_F->Get("k_factor");
+  TH1F* h_SYS = (TH1F*)tt_F->Get("SYS");
+  //double tt_k2factor = 1.8034;
+  double tt_k2factor = h_ttK->GetBinContent(1);
+  std::cout << "====KF: " << tt_k2factor << std::endl;
+
   for(int i = 0; i < 3; i++){
     for(int j = 1; j <= 4; j++){
       TString name1 = TString(Form("DY_cat%d_1D_%dmu_Box",j,i));
@@ -116,8 +149,8 @@ int main(){
       w[4*i+j-1] = (TH1F*)F->Get(name3);
       w[4*i+j-1]->Scale(w_k2factor[j-1]);
       
-      TString name4 = TString(Form("TT_L_cat%d_1D_%dmu_Box",j,i));
-      //TString name4 = TString(Form("TT_cat%d_1D_%dmu_Box",j,i));
+      //TString name4 = TString(Form("TT_L_cat%d_1D_%dmu_Box",j,i));
+      TString name4 = TString(Form("TT_cat%d_1D_%dmu_Box",j,i));
       tt[4*i+j-1] = (TH1F*)F->Get(name4);
       tt[4*i+j-1]->Scale(tt_k2factor);
       
@@ -129,7 +162,21 @@ int main(){
   ///////////////////////////////////////////////////////
   ////////////////ttbar kfactors and SYS/////////////////
   //////////////////////////////////////////////////////
-  TFile* ftt = new TFile("Pred_Files/TwoBtag_May_2014_Nominal.root");
+  
+  for(int i = 0; i < 4; i++){
+    for(int k = 1; k <= tt[i]->GetNbinsX(); k++){
+      double err = sqrt(pow(tt[i]->GetBinError(k),2) + 
+			pow(tt[i]->GetBinContent(k)*h_SYS->GetBinContent(4),2));//Uses 1mu-2b SF SYS
+      tt[i]->SetBinError(k,err);
+      //1mu
+      err = sqrt(pow(tt[i+4]->GetBinError(k),2) + 
+		 pow(tt[i+4]->GetBinContent(k)*h_SYS->GetBinContent(4),2));
+      tt[i+4]->SetBinError(k,err);
+    }
+  }
+
+  /*
+  TFile* ftt = new TFile("PredFilesAN/TwoBtag_May_2014_Nominal.root");
   
   TH1F* sys_tt_0mu[4];
   TH1F* kf_tt_0mu[4];
@@ -151,8 +198,8 @@ int main(){
     //tt[i]->Scale(kf_tt_0mu[i]->GetBinContent(1));//Uses 0mu-2b SF
     int aux = i; 
     if(i == 3)aux = 2;//Avoid using SF from last category, use third category
-    tt[i]->Scale(kf_tt_1mu[aux]->GetBinContent(1));//Uses 1mu-2b SF
-    tt[i+4]->Scale(kf_tt_1mu[aux]->GetBinContent(1));
+    //tt[i]->Scale(kf_tt_1mu[aux]->GetBinContent(1));//Uses 1mu-2b SF
+    //tt[i+4]->Scale(kf_tt_1mu[aux]->GetBinContent(1));
     
     for(int k = 1; k <= tt[i]->GetNbinsX(); k++){
       int bn = -1;
@@ -174,6 +221,7 @@ int main(){
       tt[i+4]->SetBinError(k,err); 
     }
   }
+*/
   
   /////////////////////////////////////////////////////////
   /////////////////DY 2mu Prediction//////////////////////
@@ -312,7 +360,7 @@ int main(){
   }
 
   ////////////////////////////////////
-  ///////////Total 0mu Pred V2////////////
+  ///////////Total 0mu Pred V2///////
   ////////////////////////////////////
   TH1F* p_0b_0mu_v2[4];//Total 0b 0mu Prediction
   for(int i = 0; i < 4; i++){
@@ -323,96 +371,142 @@ int main(){
   }
   
   ////////////////////////////////////
-  ///////////Total 0mu Pred V3////////////
+  ///////////Total 0mu Pred V3////////
+  ///////////Purely MC ///////////////
   ////////////////////////////////////
   TH1F* p_0b_0mu_v3[4];//Total 0b 0mu Prediction
   for(int i = 0; i < 4; i++){
-    p_0b_0mu_v3[i] = new TH1F(*w[i]);//Add W prediction
-    p_0b_0mu_v3[i]->Add(z[i]);//Add Z prediction
-    p_0b_0mu_v3[i]->Add(dy[i]);//Add DY prediction
+    p_0b_0mu_v3[i] = new TH1F(*w[i]);//Add W MC
+    p_0b_0mu_v3[i]->Add(z[i]);//Add Z MC
+    p_0b_0mu_v3[i]->Add(dy[i]);//Add DY MC
     p_0b_0mu_v3[i]->Add(tt[i]);//Add tt MC
   }
 
+
+  ////////////////////////////////////
+  ///////////Total 0mu Pred V4////////
+  //////////Z(nunu) from MC //////////
+  ////////////////////////////////////
+  TH1F* p_0b_0mu_v4[4];//Total 0b 0mu Prediction
+  for(int i = 0; i < 4; i++){
+    p_0b_0mu_v4[i] = new TH1F(*p_0b_0mu_w[i]);//Add W prediction
+    p_0b_0mu_v4[i]->Add(z[i]);//Add Z MC
+    p_0b_0mu_v4[i]->Add(p_0b_0mu_dy[i]);//Add DY prediction
+    p_0b_0mu_v4[i]->Add(tt[i]);//Add tt MC
+  }
+
+  ////////////////////////////////////
+  ///////////Total 0mu Pred V5////////
+  //////////W(lnu) from MC //////////
+  ////////////////////////////////////
+  TH1F* p_0b_0mu_v5[4];//Total 0b 0mu Prediction
+  for(int i = 0; i < 4; i++){
+    p_0b_0mu_v5[i] = new TH1F(*w[i]);//Add W MC
+    p_0b_0mu_v5[i]->Add(p_0b_0mu_z[i]);//Add Z prediction
+    p_0b_0mu_v5[i]->Add(p_0b_0mu_dy[i]);//Add DY prediction
+    p_0b_0mu_v5[i]->Add(tt[i]);//Add tt MC
+  }
 
   /////////////////////////////////////////////
   //////////Include Systematics////////////////
   /////////////////////////////////////////////
   TH1F* sys[4];
+  
+  TFile* sysF = new TFile("PredFilesAN/Sys_for_Ana.root");
   for(int i = 0; i < 4; i++){
-    TString s(Form("sys_cat%d",i+1)); 
-    sys[i] = new TH1F(s,s, r2B[i], v.at(i));
+    TString s(Form("cat%d_SYS",i+1));
+    sys[i] = (TH1F*)sysF->Get(s);
   }
-  //Get Systematics
-  for(int i = 0; i < 4; i++){
-    for(int j = 1; j <= p_0b_1mu_c[i]->GetNbinsX(); j++){
-      double diff = fabs(p_0b_1mu_c[i]->GetBinContent(j) - data[i+4]->GetBinContent(j))/p_0b_1mu_c[i]->GetBinContent(j);
-      sys[i]->SetBinContent(j, diff);
-    }
-  }
-
+  
   //Apply Systematics
   TH1F* p_0b_1mu_c_sys[4];
+
   TH1F* p_0b_0mu_sys[4];
   TH1F* p_0b_0mu_dy_sys[4];
   TH1F* p_0b_0mu_z_sys[4];
   TH1F* p_0b_0mu_w_sys[4];
   TH1F* p_0b_0mu_tt_sys[4];
+  
+  TH1F* p_0b_0mu_sys_v4[4];
+  TH1F* p_0b_0mu_dy_sys_v4[4];
+  TH1F* p_0b_0mu_z_sys_v4[4];
+  TH1F* p_0b_0mu_w_sys_v4[4];
+  TH1F* p_0b_0mu_tt_sys_v4[4];
+  
+  TH1F* p_0b_0mu_sys_v5[4];
+  TH1F* p_0b_0mu_dy_sys_v5[4];
+  TH1F* p_0b_0mu_z_sys_v5[4];
+  TH1F* p_0b_0mu_w_sys_v5[4];
+  TH1F* p_0b_0mu_tt_sys_v5[4];
+  
   for(int i = 0; i < 4; i++){
+    //1mu
     p_0b_1mu_c_sys[i] = new TH1F(*p_0b_1mu_c[i]);
+    //0mu Analysis
+    p_0b_0mu_dy_sys[i] = new TH1F(*p_0b_0mu_dy[i]);//Pred
+    p_0b_0mu_z_sys[i] = new TH1F(*p_0b_0mu_z[i]);//Pred
+    p_0b_0mu_w_sys[i] = new TH1F(*p_0b_0mu_w[i]);//Pred
+    p_0b_0mu_tt_sys[i] = new TH1F(*tt[i]);//MC
+    //0mu v4
+    p_0b_0mu_dy_sys_v4[i] = new TH1F(*p_0b_0mu_dy[i]);//Pred
+    p_0b_0mu_z_sys_v4[i] = new TH1F(*z[i]);//MC
+    p_0b_0mu_w_sys_v4[i] = new TH1F(*p_0b_0mu_w[i]);//Pred
+    p_0b_0mu_tt_sys_v4[i] = new TH1F(*tt[i]);//MC
+    //0mu v5
+    p_0b_0mu_dy_sys_v5[i] = new TH1F(*p_0b_0mu_dy[i]);//Pred
+    p_0b_0mu_z_sys_v5[i] = new TH1F(*p_0b_0mu_z[i]);//Pred
+    p_0b_0mu_w_sys_v5[i] = new TH1F(*w[i]);//MC
+    p_0b_0mu_tt_sys_v5[i] = new TH1F(*tt[i]);//MC
     
-    p_0b_0mu_dy_sys[i] = new TH1F(*p_0b_0mu_dy[i]);
-    p_0b_0mu_z_sys[i] = new TH1F(*p_0b_0mu_z[i]);
-    p_0b_0mu_w_sys[i] = new TH1F(*p_0b_0mu_w[i]);
-    p_0b_0mu_tt_sys[i] = new TH1F(*tt[i]);
+    //Loop over bins
     for(int j = 1; j <= p_0b_1mu_c[i]->GetNbinsX(); j++){
-      double err = 1.0*sqrt(pow(p_0b_1mu_c_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
+      //double err = p_0b_1mu_c_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j);//Closure Only
+      double err = sqrt( pow(p_0b_1mu_c_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j), 2) 
+			 + pow( p_0b_1mu_c_sys[i]->GetBinError(j), 2 ) );
       p_0b_1mu_c_sys[i]->SetBinError(j, err);
       
-      //0-mu
+      //0-mu Analysis
       err = 1.0*sqrt(pow(p_0b_0mu_dy_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_dy_sys[i]->GetBinError(j),2));
-      //err = 1.0*p_0b_0mu_dy_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j);
-      //err = 1.0*sqrt(pow(p_0b_0mu_dy_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
-      //err = 0.20*p_0b_0mu_dy_sys[i]->GetBinContent(j);
       p_0b_0mu_dy_sys[i]->SetBinError(j, err);
       
       err = 1.0*sqrt(pow(p_0b_0mu_z_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_z_sys[i]->GetBinError(j),2));
-      //err = 1.0*sqrt(pow(p_0b_0mu_z_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
-      //err = 1.0*p_0b_0mu_z_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j);
-      //err = 0.20*p_0b_0mu_z_sys[i]->GetBinContent(j);
       p_0b_0mu_z_sys[i]->SetBinError(j, err);
       
       err = 1.0*sqrt(pow(p_0b_0mu_w_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_w_sys[i]->GetBinError(j),2));
-      //err = 1.0*sqrt(pow(p_0b_0mu_w_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_1mu_c_sys[i]->GetBinError(j),2) );
-      //err = 1.0*p_0b_0mu_w_sys[i]->GetBinContent(j)*sys[i]->GetBinContent(j);
-      //err = 0.20*p_0b_0mu_w_sys[i]->GetBinContent(j);
-      p_0b_0mu_w_sys[i]->SetBinError(j, err);
-      //err = 2*p_0b_0mu_tt_sys[i]->GetBinError(j);
-      //p_0b_0mu_tt_sys[i]->SetBinError(j, err);
-      /*
-      if( i == 0 && (j == 6 || j == 11)){
-	err = 0.30*p_0b_0mu_dy_sys[i]->GetBinContent(j);
-	p_0b_0mu_dy_sys[i]->SetBinError(j, err);
-	err = 0.30*p_0b_0mu_z_sys[i]->GetBinContent(j);
-	p_0b_0mu_z_sys[i]->SetBinError(j, err);
-	err = 0.30*p_0b_0mu_w_sys[i]->GetBinContent(j);
-	p_0b_0mu_w_sys[i]->SetBinError(j, err);
-      }
       
-      if( i == 1 && (j == 2 || j == 5)){
-	err = 0.30*p_0b_0mu_dy_sys[i]->GetBinContent(j);
-	p_0b_0mu_dy_sys[i]->SetBinError(j, err);
-	err = 0.30*p_0b_0mu_z_sys[i]->GetBinContent(j);
-	p_0b_0mu_z_sys[i]->SetBinError(j, err);
-	err = 0.30*p_0b_0mu_w_sys[i]->GetBinContent(j);
-	p_0b_0mu_w_sys[i]->SetBinError(j, err);
+      p_0b_0mu_w_sys[i]->SetBinError(j, err);
+      
+      //0-mu v4
+      err = 1.0*sqrt(pow(p_0b_0mu_dy_sys_v4[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_dy_sys_v4[i]->GetBinError(j),2));
+      p_0b_0mu_dy_sys_v4[i]->SetBinError(j, err);
+      
+      err = 1.0*sqrt(pow(p_0b_0mu_z_sys_v4[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_z_sys_v4[i]->GetBinError(j),2));
+      p_0b_0mu_z_sys_v4[i]->SetBinError(j, err);
+      
+      err = 1.0*sqrt(pow(p_0b_0mu_w_sys_v4[i]->GetBinContent(j)*sys[i]->GetBinContent(j),2) + pow(p_0b_0mu_w_sys_v4[i]->GetBinError(j),2));
+      
+      p_0b_0mu_w_sys_v4[i]->SetBinError(j, err);
+      
       }
-      */
-    }
+    
+    //0mu Analysis
     p_0b_0mu_sys[i] = new TH1F(*p_0b_0mu_dy_sys[i]);
     p_0b_0mu_sys[i]->Sumw2();
     p_0b_0mu_sys[i]->Add(p_0b_0mu_z_sys[i]);
     p_0b_0mu_sys[i]->Add(p_0b_0mu_w_sys[i]);
     p_0b_0mu_sys[i]->Add(p_0b_0mu_tt_sys[i]);
+    //0mu v4
+    p_0b_0mu_sys_v4[i] = new TH1F(*p_0b_0mu_dy_sys_v4[i]);
+    p_0b_0mu_sys_v4[i]->Sumw2();
+    p_0b_0mu_sys_v4[i]->Add(p_0b_0mu_z_sys_v4[i]);
+    p_0b_0mu_sys_v4[i]->Add(p_0b_0mu_w_sys_v4[i]);
+    p_0b_0mu_sys_v4[i]->Add(p_0b_0mu_tt_sys_v4[i]);
+    //0mu v5
+    p_0b_0mu_sys_v5[i] = new TH1F(*p_0b_0mu_dy_sys_v5[i]);
+    p_0b_0mu_sys_v5[i]->Sumw2();
+    p_0b_0mu_sys_v5[i]->Add(p_0b_0mu_z_sys_v5[i]);
+    p_0b_0mu_sys_v5[i]->Add(p_0b_0mu_w_sys_v5[i]);
+    p_0b_0mu_sys_v5[i]->Add(p_0b_0mu_tt_sys_v5[i]);
   }
 
   //Print Out Prediction in different cat
@@ -437,9 +531,7 @@ int main(){
     Integral = p_0b_1mu_c_sys[i]->IntegralAndError(1, r2B[i], error, "");
     std::cout << "TOTAL BKG: "  << Integral << " \pm " << error << std::endl;
     Integral = data[i+4]->IntegralAndError(1, r2B[i], error, "");
-    std::cout << "DATA 1MU: "  << Integral << " \pm " << error << std::endl;
-    
-     
+    std::cout << "DATA 1MU: "  << Integral << " \pm " << error << std::endl;    
   }
   
   /////////////////
@@ -447,18 +539,34 @@ int main(){
   /////////////////
   
   TString n, n1, ex_s;
-  TString SYS = "_NEW_kF";
-  TFile* f1 = new TFile("PredFilesFinal/MR_Cat_PredV2"+SYS+".root","RECREATE");
+  TString SYS = "_NEW_kF_OriginalANA_TEST";
+  TFile* f1 = new TFile("PredFilesAN/MR_Cat_PredV2"+SYS+".root","RECREATE");
   for(int i = 0; i < 4; i++){
     n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
     n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
     ex_s = TString(Form("cat%d",i+1));
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1#mu", "BKg Pred 1#mu", "PredPlotsFinal/Closure_Bkg_R2_1mu_0b_Pred_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),2);
-    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1#mu", "BKg Pred 1#mu", "PredPlotsFinal/Closure_Bkg_R2_1mu_0b_Pred_SYS_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),2);
-    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsFinal/Bkg_R2_0mu_0b_Pred_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
-    RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsFinal/Bkg_R2_0mu_0b_Pred_SYS_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
-    RatioPlotsBandV2( data[i], p_0b_0mu_v2[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsFinal/Bkg_R2_0mu_0b_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
-    RatioPlotsBandV2( data[i], p_0b_0mu_v3[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsFinal/Bkg_R2_0mu_0b_Pred_V3"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1#mu", "BKg Pred 1#mu", "PredPlotsAN/Closure_Bkg_R2_1mu_0b_Pred_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),2);
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1#mu", "BKg Pred 1#mu", "PredPlotsAN/Closure_Bkg_R2_1mu_0b_Pred_SYS_ClosureOnly"+ex_s+SYS, "RSQ", r2B[i], v.at(i),2);
+    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsAN/Bkg_R2_0mu_0b_Pred_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsAN/Bkg_R2_0mu_0b_Pred_SYS_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v2[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsAN/Bkg_R2_0mu_0b_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v3[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsAN/Bkg_R2_0mu_0b_Pred_V3"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v4[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsAN/Bkg_R2_0mu_0b_Pred_V4"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_sys_v4[i], "Data  0#mu", "BKg Pred 0#mu", "PredPlotsAN/Bkg_R2_0mu_0b_Pred_SYS_V4_"+ex_s+SYS, "RSQ", r2B[i], v.at(i),0);
+
+
+    //After Pre approval Studies
+    RatioPlotsBandV2( data[i], p_0b_0mu[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s, "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v2[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_V2", "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v3[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_V3", "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v4[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_V4", "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[i], p_0b_0mu_v5[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_V5", "RSQ", r2B[i], v.at(i),0);
+    //RatioPlotsBandV2( data[i], p_0b_0mu_sys[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_SYS", "RSQ", r2B[i], v.at(i),0);
+    //RatioPlotsBandV2( data[i], p_0b_0mu_sys_v4[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_V4_SYS", "RSQ", r2B[i], v.at(i),0);
+    //RatioPlotsBandV2( data[i], p_0b_0mu_sys_v5[i], "Data  0#mu", "BKg Pred 0#mu", "PlotsBkgPred/R2_Pred_"+ex_s+"_V5_SYS", "RSQ", r2B[i], v.at(i),0);
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c[i], "Data  1#mu", "BKg Pred 1#mu", "PlotsBkgPred/Closure_Bkg_R2_1mu_0b_Pred_STAT_" + ex_s, "RSQ", r2B[i], v.at(i),2);
+    RatioPlotsBandV2( data[4+i], p_0b_1mu_c_sys[i], "Data  1#mu", "BKg Pred 1#mu", "PlotsBkgPred/Closure_Bkg_R2_1mu_0b_Pred_SYS_" + ex_s, "RSQ", r2B[i], v.at(i),2);
+    
     
     p_0b_0mu_sys[i]->Write(n1+"_sys");
     n = TString(Form("cat%d_dy_Pred",i+1));
@@ -476,7 +584,34 @@ int main(){
     data_copy_1mu[i]->Write();
     n = TString(Form("cat%d_W_PREDICTION",i+1));
     p_0b_1mu_wc[i]->Write(n);
-    
+    n = TString(Form("cat%d_Z0mu_to_W1mu",i+1));
+    r_0b_0mu_z[i]->Write(n);
+    n = TString(Form("cat%d_W0mu_to_W1mu",i+1));
+    r_0b_0mu_w[i]->Write(n);
+    n = TString(Form("cat%d_DY0mu_to_DY2mu",i+1));
+    r_0b_0mu_dy[i]->Write(n);
+    n = TString(Form("cat%d_W1mu_to_DY2mu",i+1));
+    r_0b_1mu_wc[i]->Write(n);
+    n = TString(Form("cat%d_DY1mu_to_DY2mu",i+1));
+    r_0b_1mu_dy[i]->Write(n);
+    n = TString(Form("pred_Znunu_cat%d",i+1));
+    p_0b_0mu_z[i]->Write(n);
+    n = TString(Form("mc_Znunu_cat%d",i+1));
+    z[i]->Write(n);
+    n = TString(Form("pred_Wlnu_cat%d",i+1));
+    p_0b_0mu_w[i]->Write(n);
+    n = TString(Form("mc_Wlnu_cat%d",i+1));
+    w[i]->Write(n);
+    n = TString(Form("pred_Znunu_from_2mu_cat%d",i+1));
+    p_0b_0mu_z_v2[i]->Write(n);
+    n = TString(Form("pred_1MU_cat%d",i+1));
+    p_0b_1mu_c[i]->Write(n);
+    n = TString(Form("pred_1MU_sys_cat%d",i+1));
+    p_0b_1mu_c_sys[i]->Write(n);
+    /*
+    n = TString(Form("cat%d_SYS",i+1));
+    sys[i]->Write(n);
+    */
   }
   f1->Close();
   

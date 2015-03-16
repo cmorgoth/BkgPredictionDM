@@ -55,7 +55,8 @@ int main(){
   set_plot_style();
   TCanvas* cc = new TCanvas("cc", "cc", 640, 640);
   //TFile* F = new TFile("FinalROOTFiles/TwoTightBtagCorr_MRcategories.root");
-  TFile* F = new TFile("FinalROOT_May2014/TwoBtag_May_2014.root");
+  //TFile* F = new TFile("FinalROOT_May2014/TwoBtag_May_2014.root");
+  TFile* F = new TFile("FinalROOTFiles/TwoBtag_Tight_May_2014_NewTriger_AN.root");
   
   v.push_back(c1B);
   v.push_back(c2B);
@@ -306,17 +307,17 @@ int main(){
   }
 
   TString SYS = "_Nominal";
-  TFile* f1 = new TFile("Pred_Files/TwoBtag_May_2014_Nominal.root","RECREATE");
+  TFile* f1 = new TFile("PredFilesAN/TwoBtag_May_2014_Nominal.root","RECREATE");
   TString n, n1, ex_s;
   for(int i = 0; i < 3; i++){
     n = TString(Form("cat%d_1D_1mu_Box_Pred",i+1));
     n1 = TString(Form("cat%d_1D_0mu_Box_Pred",i+1));
     ex_s = TString(Form("cat%d",i+1));
     
-    RatioPlotsBandV2( data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Two_TT_0mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),1);
-    RatioPlotsBandV2( data[4+i], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Two_TT_1mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),1);
-    RatioPlotsV2(t_s_1mu[i], data[i+4], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlots/Stack_Two_TT_1mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i), leg[i]);
-    RatioPlotsV2(t_s_0mu[i], data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlots/Stack_Two_TT_0mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i), leg[i]);
+    RatioPlotsBandV2( data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlotsAN/Two_TT_0mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),1);
+    RatioPlotsBandV2( data[4+i], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlotsAN/Two_TT_1mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i),1);
+    RatioPlotsV2(t_s_1mu[i], data[i+4], t_mc_1mu[i], "Data  1#mu-2b", "BKg Pred 1#mu-2b", "PredPlotsAN/Stack_Two_TT_1mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i), leg[i]);
+    RatioPlotsV2(t_s_0mu[i], data[i], t_mc[i], "Data  0#mu-2b", "BKg Pred 0#mu-2b", "PredPlotsAN/Stack_Two_TT_0mu_MC_Pred_V2"+ex_s+SYS, "RSQ", r2B[i], v.at(i), leg[i]);
     
     data[i]->Write();
     t_mc[i]->Write();
